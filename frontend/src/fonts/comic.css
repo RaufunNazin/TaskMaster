@@ -1,0 +1,9 @@
+/* custom-font.css */
+
+@font-face {
+    font-family: 'comic'; /* Replace with your desired font name */
+    src: url('./comic.ttf') format('truetype'); /* Path to your font files */
+    font-weight: normal;
+    font-style: normal;
+  }
+  
