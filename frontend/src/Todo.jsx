@@ -5,6 +5,8 @@ import { Textarea } from "./ui/textarea";
 import { Calendar } from "./ui/calendar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import { FcOk } from "react-icons/fc";
+import { format } from "date-fns";
+import { MdOutlineAdd } from "react-icons/md";
 import {
   AiOutlineClockCircle,
   AiOutlineStar,
@@ -12,7 +14,7 @@ import {
 } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CgDetailsMore } from "react-icons/cg";
-import { BsCheck2Circle } from "react-icons/bs";
+import { BsCheck2Circle, BsCheck2 } from "react-icons/bs";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,14 +30,20 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import SidePanel from "./components/SidePanel";
+import { Button } from "./ui/button";
+import Completed from "./Completed";
 
 const Todo = () => {
   const [dragItemId, setDragItemId] = useState(null);
-  const [pending, setPending] = useState([]);
+  const [pending, setPending] = useState([
+    { title: "1", date: "2" },
+    { title: "1", date: "2" },
+    { title: "1", date: "2" },
+  ]);
   const [completed, setCompleted] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarOpen1, setCalendarOpen1] = useState(false);
 
@@ -43,7 +51,7 @@ const Todo = () => {
     const newTask = {
       title: title,
       description: description,
-      date: date.toString().slice(3, 15),
+      date: date?.toString().slice(3, 15),
     };
     if (title) {
       setPending((prevItems) => [...prevItems, newTask]);
@@ -109,7 +117,7 @@ const Todo = () => {
         pauseOnFocusLoss
         draggable={false}
         pauseOnHover={false}
-        theme="colored"
+        theme="light"
       />
       <Navbar />
 
@@ -185,7 +193,6 @@ const Todo = () => {
                         type="button"
                         key={i}
                         draggable="true"
-                        onDragStart={(e) => onDragStart(e, i)}
                         className="shadow-md py-4 rounded-md bg-white px-4 border-l-4 border-yellow-400 flex justify-between items-center"
                       >
                         <div>
@@ -317,19 +324,15 @@ const Todo = () => {
       </div>
       <div className="flex flex-1">
         <SidePanel />
-        <div className="lg:grid lg:grid-cols-3 lg:gap-x-24 pt-8 px-12 bg-gray-50 flex-1 hidden">
+        <div className="lg:grid lg:grid-cols-1 lg:gap-x-24 pt-8 px-12 bg-gray-50 flex-1 hidden">
           <div>
-            <div className="rounded-t-xl text-center bg-gradient-to-b from-sky-600 to-sky-400 text-black py-3 font-medium">
-              Add Task
-            </div>
-            <div className="flex flex-col gap-y-6 bg-gradient-to-b from-gray-100 to-gray-200 rounded-b-xl p-4">
-              <div className="grid grid-cols-6 gap-x-4 items-center">
-                <Input
-                  id="title"
+            <div className="flex flex-col gap-y-2 p-4">
+              <div className="shadow-md py-6 rounded-md bg-white px-10 flex gap-x-4 items-center">
+                <input
                   type="text"
                   value={title}
-                  className="col-span-5"
-                  placeholder="Title"
+                  placeholder="Add new task"
+                  className="w-full outline-none ring-0 border-none"
                   onChange={(e) => setTitle(e.target.value)}
                 />
                 <Popover
@@ -337,11 +340,17 @@ const Todo = () => {
                   onOpenChange={() => setCalendarOpen(true)}
                 >
                   <PopoverTrigger asChild>
-                    <button className="flex h-full justify-center items-center bg-white rounded-lg border border-slate-400">
-                      <AiTwotoneCalendar className="text-2xl" />
-                    </button>
+                    <Button
+                      variant={"outline"}
+                      className={`w-[280px] justify-center text-left font-normal ${
+                        !date && "text-muted-foreground"
+                      }`}
+                    >
+                      <AiTwotoneCalendar className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80">
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
                       selected={date}
@@ -349,32 +358,20 @@ const Todo = () => {
                         setDate(newDate);
                         setCalendarOpen(false);
                       }}
-                      className="rounded-md border"
+                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={() => addTask()}
+                >
+                  <BsCheck2 className="text-3xl text-blue-600 hover:text-blue-500" />
+                </button>
               </div>
-              <Textarea
-                id="description"
-                type="text"
-                value={description}
-                className="col-span-3"
-                placeholder="Description"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <button
-                onClick={addTask}
-                className="w-1/3 mx-auto border-2 text-xl text-white bg-sky-500 hover:bg-sky-400 transition-all duration-300 py-2 rounded-md"
-              >
-                Add New Task
-              </button>
             </div>
-          </div>
-          <div>
-            <div className="rounded-t-xl text-center bg-gradient-to-b from-yellow-500 to-yellow-300 text-black py-3 font-medium">
-              Pending Tasks
-            </div>
-            <div className="flex flex-col gap-y-6 bg-gradient-to-b from-gray-100 to-gray-200 rounded-b-xl p-4">
+            <div className="flex flex-col gap-y-2 p-4">
               {pending.length > 0 ? (
                 pending.map((item, i) => {
                   return (
@@ -382,17 +379,16 @@ const Todo = () => {
                       type="button"
                       key={i}
                       draggable="true"
-                      onDragStart={(e) => onDragStart(e, i)}
-                      className="shadow-md py-4 rounded-md bg-white px-4 border-l-4 border-yellow-400 flex justify-between items-center"
+                      className="shadow-md py-3 rounded-sm bg-white px-10 flex justify-between items-center"
                     >
                       <div>
-                        <div className="text-2xl text-left">{item.title}</div>
+                        <div className="text-xl text-left">{item.title}</div>
                         <div className="text-sm text-gray-500 flex items-center gap-x-1">
                           <AiOutlineClockCircle />
                           {item.date && item.date}
                         </div>
                       </div>
-                      <div className="flex gap-x-2 text-gray-500">
+                      <div className="flex gap-x-4 text-gray-500">
                         <button>
                           <CgDetailsMore className="text-2xl hover:text-blue-600" />
                         </button>
@@ -454,50 +450,9 @@ const Todo = () => {
                   );
                 })
               ) : (
-                <div className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-yellow-400 flex gap-x-4 items-center">
-                  <FcOk className="text-2xl animate-pulse" />
+                <div className="shadow-md py-6 rounded-sm bg-white px-10 flex gap-x-4 items-center">
+                  <FcOk className="text-2xl" />
                   <div>No Pending Tasks!</div>
-                </div>
-              )}
-            </div>
-          </div>
-          <div onDragOver={onDragOver} onDrop={onDrop}>
-            <div className="rounded-t-xl text-center bg-gradient-to-b from-green-600 to-green-400 outline-1 py-3 font-medium">
-              Completed Tasks
-            </div>
-            <div className="flex flex-col gap-y-6 bg-gradient-to-b from-gray-100 to-gray-200 rounded-b-xl p-4">
-              {completed.length > 0 ? (
-                completed.map((item, i) => {
-                  return (
-                    <div
-                      key={i}
-                      className="shadow-md py-4 rounded-md bg-white px-4 border-l-4 border-green-600 flex justify-between items-center"
-                    >
-                      <div>
-                        <div className="text-2xl text-left">{item.title}</div>
-                        <div className="text-sm text-gray-500 flex items-center gap-x-1">
-                          <AiOutlineClockCircle />
-                          {item.date && item.date}
-                        </div>
-                      </div>
-                      <div className="flex gap-x-2 text-gray-500">
-                        <button>
-                          <CgDetailsMore className="text-2xl hover:text-blue-600" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteCompletedTask(i)}
-                        >
-                          <RiDeleteBin6Line className="text-2xl hover:text-red-800" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-green-600 flex gap-x-4 items-center">
-                  <AiOutlineClockCircle className="text-2xl text-yellow-500 animate-pulse" />
-                  <div>Yet to Complete a Task!</div>
                 </div>
               )}
             </div>

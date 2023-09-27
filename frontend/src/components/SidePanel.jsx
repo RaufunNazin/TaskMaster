@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { CgDetailsMore } from "react-icons/cg";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { AiFillStar } from "react-icons/ai";
-import { BsFillPersonFill } from "react-icons/bs";
-import { VscCheckAll } from "react-icons/vsc";
+import { BsFillPersonFill, BsClipboardCheck } from "react-icons/bs";
+import { BsCheck2Circle } from "react-icons/bs";
 import { GiPin } from "react-icons/gi";
 import { MdWork, MdOutlineAdd } from "react-icons/md";
 import {
@@ -18,6 +18,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 const SidePanel = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -26,7 +27,7 @@ const SidePanel = () => {
   const [categories, setCategories] = useState([
     {
       title: "All Tasks",
-      icon: <VscCheckAll className="text-green-700" />,
+      icon: <BsClipboardCheck className="text-gray-800" />,
     },
     {
       title: "Important",
@@ -90,6 +91,11 @@ const SidePanel = () => {
               </MenuItem>
             );
           })}
+        <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
+          <Link to="/completed" className="font-medium text-gray-700">
+            Completed Tasks
+          </Link>
+        </MenuItem>
         <hr className="my-6" />
         <Dialog open={openDialog} onOpenChange={() => setOpenDialog(true)}>
           <DialogTrigger asChild>
