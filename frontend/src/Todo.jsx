@@ -8,6 +8,8 @@ import { FcOk } from "react-icons/fc";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { AiTwotoneCalendar } from "react-icons/ai";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Todo = () => {
   const [dragItemId, setDragItemId] = useState(null);
@@ -17,8 +19,23 @@ const Todo = () => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
   const [calendar, setCalendar] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarOpen1, setCalendarOpen1] = useState(false);
 
-  const addTask = () => {};
+  const addTask = () => {
+    const newTask = {
+      title: title,
+      description: description,
+      date: date,
+    };
+    if (title) {
+      // setPending((prevItems) => [...prevItems, newTask]);
+      console.log(date);
+      setTitle("");
+      setDescription("");
+      setDate(new Date());
+    } else toast.error("Please enter a title");
+  };
 
   const onDragStart = (e, id) => {
     e.dataTransfer.setData("text/plain", "div"); // Required for drag-and-drop to work
@@ -40,6 +57,18 @@ const Todo = () => {
   };
   return (
     <div className="flex flex-col h-screen">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover={false}
+        theme="colored"
+      />
       <Navbar />
       <div className="pt-8 bg-gray-50 flex-1 lg:hidden">
         <Tabs defaultValue="pending" className="w-full px-2">
@@ -56,14 +85,39 @@ const Todo = () => {
               <Input
                 id="title"
                 type="text"
+                value={title}
                 className="col-span-3"
                 placeholder="Title"
+                onChange={(e) => setTitle(e.target.value)}
               />
-              <Input
+              <Popover
+                open={calendarOpen1}
+                onOpenChange={() => setCalendarOpen1(true)}
+              >
+                <PopoverTrigger asChild>
+                  <button className="flex h-full justify-center items-center bg-white rounded-lg border border-slate-400">
+                    <AiTwotoneCalendar className="text-2xl" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(newDate) => {
+                      setDate(newDate);
+                      setCalendarOpen1(false);
+                    }}
+                    className="rounded-md border"
+                  />
+                </PopoverContent>
+              </Popover>
+              <Textarea
                 id="description"
                 type="text"
+                value={description}
                 className="col-span-3"
                 placeholder="Description"
+                onChange={(e) => setDescription(e.target.value)}
               />
               <button className="w-1/3 mx-auto border-2 text-sm text-white bg-sky-500 hover:bg-sky-400 transition-all duration-300 py-2 rounded-md">
                 Add New Task
@@ -80,11 +134,11 @@ const Todo = () => {
                   pending.map((item, i) => {
                     return (
                       <div
-                        id={i}
+                        key={i}
                         placeholder="Title"
                         className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-yellow-400"
                       >
-                        {item}
+                        {item.title}
                       </div>
                     );
                   })
@@ -110,10 +164,10 @@ const Todo = () => {
                   completed.map((item, i) => {
                     return (
                       <div
-                        id={i}
+                        key={i}
                         className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-green-600"
                       >
-                        {item}
+                        {item.title}
                       </div>
                     );
                   })
@@ -138,16 +192,17 @@ const Todo = () => {
               <Input
                 id="title"
                 type="text"
+                value={title}
                 className="col-span-5"
                 placeholder="Title"
                 onChange={(e) => setTitle(e.target.value)}
               />
-              <Popover>
+              <Popover
+                open={calendarOpen}
+                onOpenChange={() => setCalendarOpen(true)}
+              >
                 <PopoverTrigger asChild>
-                  <button
-                    onClick={() => setCalendar(true)}
-                    className="flex h-full justify-center items-center bg-white rounded-lg border border-slate-400"
-                  >
+                  <button className="flex h-full justify-center items-center bg-white rounded-lg border border-slate-400">
                     <AiTwotoneCalendar className="text-2xl" />
                   </button>
                 </PopoverTrigger>
@@ -155,7 +210,10 @@ const Todo = () => {
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={(newDate) => {
+                      setDate(newDate);
+                      setCalendarOpen(false);
+                    }}
                     className="rounded-md border"
                   />
                 </PopoverContent>
@@ -164,6 +222,7 @@ const Todo = () => {
             <Textarea
               id="description"
               type="text"
+              value={description}
               className="col-span-3"
               placeholder="Description"
               onChange={(e) => setDescription(e.target.value)}
@@ -185,8 +244,7 @@ const Todo = () => {
               pending.map((item, i) => {
                 return (
                   <div
-                    id={i}
-                    placeholder="Title"
+                    key={i}
                     draggable="true"
                     onDragStart={(e) => onDragStart(e, i)}
                     style={{
@@ -195,15 +253,12 @@ const Todo = () => {
                     }}
                     className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-yellow-400"
                   >
-                    {item}
+                    {item.title} {/* Render the title property */}
                   </div>
                 );
               })
             ) : (
-              <div
-                placeholder="Title"
-                className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-yellow-400 flex gap-x-4 items-center"
-              >
+              <div className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-yellow-400 flex gap-x-4 items-center">
                 <FcOk className="text-2xl animate-pulse" />
                 <div>All Caught Up!</div>
               </div>
@@ -219,10 +274,10 @@ const Todo = () => {
               completed.map((item, i) => {
                 return (
                   <div
-                    id={i}
+                    key={i}
                     className="shadow-md py-6 rounded-md bg-white px-4 border-l-4 border-green-600"
                   >
-                    {item}
+                    {item.title}
                   </div>
                 );
               })
