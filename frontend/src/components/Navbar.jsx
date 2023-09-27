@@ -13,9 +13,9 @@ import React from "react";
 
 function MenubarDemo() {
   return (
-    <div className="flex justify-between items-center border-b bg-gray-900 border-b-black py-2 px-4 lg:p-4 lg:px-24">
+    <div className="flex justify-between items-center border-b bg-gray-100 border-b-black py-2 px-4 lg:p-4 lg:px-24">
       <button
-        className="font-black text-2xl text-white"
+        className="font-black text-2xl text-black"
         onClick={() => (window.location.pathname = "/")}
       >
         TaskMaster

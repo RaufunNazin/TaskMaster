@@ -1,14 +1,25 @@
 import Navbar from "./components/Navbar";
 import { useState } from "react";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Calendar } from "./ui/calendar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import { FcOk } from "react-icons/fc";
 import { AiOutlineClockCircle } from "react-icons/ai";
+import { AiTwotoneCalendar } from "react-icons/ai";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 const Todo = () => {
   const [dragItemId, setDragItemId] = useState(null);
-  const [pending, setPending] = useState([1, 2, 3]);
+  const [pending, setPending] = useState([]);
   const [completed, setCompleted] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [calendar, setCalendar] = useState(false);
+
+  const addTask = () => {};
+
   const onDragStart = (e, id) => {
     e.dataTransfer.setData("text/plain", "div"); // Required for drag-and-drop to work
     setDragItemId(id);
@@ -30,8 +41,8 @@ const Todo = () => {
   return (
     <div className="flex flex-col h-screen">
       <Navbar />
-      <div className="pt-8 bg-gray-800 flex-1 lg:hidden">
-        <Tabs defaultValue="account" className="w-full px-2">
+      <div className="pt-8 bg-gray-50 flex-1 lg:hidden">
+        <Tabs defaultValue="pending" className="w-full px-2">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="add">Add Task</TabsTrigger>
             <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -117,25 +128,50 @@ const Todo = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <div className="lg:grid lg:grid-cols-3 lg:gap-x-24 pt-8 px-12 bg-gray-800 flex-1 hidden">
+      <div className="lg:grid lg:grid-cols-3 lg:gap-x-24 pt-8 px-12 bg-gray-50 flex-1 hidden">
         <div>
           <div className="rounded-t-xl text-center bg-gradient-to-b from-sky-600 to-sky-400 text-black py-3 font-medium">
             Add Task
           </div>
           <div className="flex flex-col gap-y-6 bg-gradient-to-b from-gray-100 to-gray-200 rounded-b-xl p-4">
-            <Input
-              id="title"
-              type="text"
-              className="col-span-3"
-              placeholder="Title"
-            />
-            <Input
+            <div className="grid grid-cols-6 gap-x-4 items-center">
+              <Input
+                id="title"
+                type="text"
+                className="col-span-5"
+                placeholder="Title"
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={() => setCalendar(true)}
+                    className="flex h-full justify-center items-center bg-white rounded-lg border border-slate-400"
+                  >
+                    <AiTwotoneCalendar className="text-2xl" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <Textarea
               id="description"
               type="text"
               className="col-span-3"
               placeholder="Description"
+              onChange={(e) => setDescription(e.target.value)}
             />
-            <button className="w-1/3 mx-auto border-2 text-xl text-white bg-sky-500 hover:bg-sky-400 transition-all duration-300 py-2 rounded-md">
+            <button
+              onClick={addTask}
+              className="w-1/3 mx-auto border-2 text-xl text-white bg-sky-500 hover:bg-sky-400 transition-all duration-300 py-2 rounded-md"
+            >
               Add New Task
             </button>
           </div>
