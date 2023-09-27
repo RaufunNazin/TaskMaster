@@ -20,33 +20,29 @@ function MenubarDemo() {
       >
         TaskMaster
       </button>
-      <Menubar>
-        <MenubarMenu>
-          <MenubarTrigger
-            onClick={() => (window.location.pathname = "/")}
-            className="cursor-pointer"
-          >
-            Srizon
-          </MenubarTrigger>
-        </MenubarMenu>
-        <MenubarMenu>
-          <MenubarTrigger className="cursor-pointer">Login</MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => (window.location.pathname = "/login")}>
-              Using Email-Password
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarSub>
-              <MenubarSubTrigger>Using social media</MenubarSubTrigger>
-              <MenubarSubContent>
-                <MenubarItem>Google</MenubarItem>
-                <MenubarItem>Facebook</MenubarItem>
-                <MenubarItem>Github</MenubarItem>
-              </MenubarSubContent>
-            </MenubarSub>
-          </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
+      <div className="mr-12 lg:mr-2">
+        <Menubar>
+          <MenubarMenu>
+            <MenubarTrigger className="cursor-pointer ">Login</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem
+                onClick={() => (window.location.pathname = "/login")}
+              >
+                Using Email-Password
+              </MenubarItem>
+              <MenubarSeparator />
+              <MenubarSub>
+                <MenubarSubTrigger>Using social media</MenubarSubTrigger>
+                <MenubarSubContent>
+                  <MenubarItem>Google</MenubarItem>
+                  <MenubarItem>Facebook</MenubarItem>
+                  <MenubarItem>Github</MenubarItem>
+                </MenubarSubContent>
+              </MenubarSub>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+      </div>
     </div>
   );
 }
