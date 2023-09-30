@@ -78,6 +78,7 @@ const Sidebar = () => {
 
     // Add the new category to the state.
     setCategories([...categories, newCategory]);
+    setOpen(false);
   };
 
   return (
@@ -111,9 +112,15 @@ const Sidebar = () => {
           </Link>
         </div>
         <hr className="my-6" />
-        <Dialog open={openDialog} onOpenChange={() => setOpenDialog(true)}>
+        {/* <Dialog
+          open={openDialog}
+          onOpenChange={() => {
+            setOpen(false);
+            setOpenDialog(true);
+          }}
+        >
           <DialogTrigger asChild>
-            <div onClick={closeSideBar}>
+            <div>
               <MdOutlineAdd className="inline mr-2 text-blue-600 text-xl pb-0.5" />
               <Link
                 to="/completed"
@@ -156,7 +163,7 @@ const Sidebar = () => {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
       </Menu>
     </div>
   );
