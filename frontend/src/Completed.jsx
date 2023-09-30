@@ -18,10 +18,11 @@ import {
 } from "./ui/alert-dialog";
 import SidePanel from "./components/SidePanel";
 import { useState } from "react";
+import { BiChevronsRight } from "react-icons/bi";
 
 const Completed = () => {
   const [completed, setCompleted] = useState([
-    { title: "1", date: "2" },
+    { title: "1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", date: "2" },
     { title: "1", date: "2" },
     { title: "1", date: "2" },
   ]);
@@ -51,64 +52,70 @@ const Completed = () => {
       <Navbar />
       <div className="flex flex-1">
         <SidePanel />
-        <div className="lg:grid lg:grid-cols-1 lg:gap-x-24 pt-8 px-12 bg-gray-50 flex-1 hidden">
-          <div className="flex flex-col gap-y-2 p-4">
-            {completed?.length > 0 ? (
-              completed?.map((item, i) => {
-                return (
-                  <button
-                    type="button"
-                    key={i}
-                    draggable="true"
-                    className="shadow-md py-3 rounded-sm bg-white px-10 flex justify-between items-center"
-                  >
-                    <div>
-                      <div className="text-xl text-left">{item.title}</div>
-                      <div className="text-sm text-gray-500 flex items-center gap-x-1">
-                        <AiOutlineClockCircle />
-                        {item.date && item.date}
+        <div className="flex flex-col w-full">
+          <div className="bg-gray-50 pt-8 px-12 flex gap-x-2 items-center">
+            <p className="text-2xl">Completed Tasks</p>
+            <BiChevronsRight className="text-2xl pt-2"/>
+          </div>
+          <div className="lg:grid lg:grid-cols-1 lg:gap-x-24 pt-4 lg:pt-8 px-2 lg:px-12 bg-gray-50 flex-1">
+            <div className="flex flex-col gap-y-2 p-4">
+              {completed?.length > 0 ? (
+                completed?.map((item, i) => {
+                  return (
+                    <button
+                      type="button"
+                      key={i}
+                      draggable="true"
+                      className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="text-sm lg:text-xl text-left">{item.title}</p>
+                        <div className="text-sm text-gray-500 flex items-center gap-x-1">
+                          <AiOutlineClockCircle />
+                          {item.date && item.date}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-x-4 text-gray-500">
-                      <button>
-                        <CgDetailsMore className="text-2xl hover:text-blue-600" />
-                      </button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button type="button">
-                            <RiDeleteBin6Line className="text-2xl hover:text-red-800" />
-                          </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Are you absolutely sure?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete your task
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteCompletedTask(i)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </button>
-                );
-              })
-            ) : (
-              <div className="shadow-md py-6 rounded-sm bg-white px-10 flex gap-x-4 items-center">
-                <BiTimeFive className="text-2xl text-yellow-600" />
-                <div>Yet to complete a task!</div>
-              </div>
-            )}
+                      <div className="flex gap-x-4 text-gray-500">
+                        <button>
+                          <CgDetailsMore className="text-md lg:text-2xl hover:text-blue-600" />
+                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button type="button">
+                              <RiDeleteBin6Line className="text-md lg:text-2xl hover:text-red-800" />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete your task
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteCompletedTask(i)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="shadow-md py-6 rounded-sm bg-white px-10 flex gap-x-4 items-center">
+                  <BiTimeFive className="text-2xl text-yellow-600" />
+                  <div>Yet to complete a task!</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -28,18 +28,22 @@ const SidePanel = () => {
     {
       title: "All Tasks",
       icon: <BsClipboardCheck className="text-gray-800" />,
+      path: "/"
     },
     {
       title: "Important",
       icon: <AiFillStar className="text-yellow-500" />,
+      path: "/important"
     },
     {
       title: "Personal",
       icon: <BsFillPersonFill className="text-blue-500" />,
+      path: "/personal"
     },
     {
       title: "Work",
       icon: <MdWork className="text-amber-950" />,
+      path: "/work"
     },
   ]);
 
@@ -55,92 +59,96 @@ const SidePanel = () => {
   };
 
   return (
-    <Sidebar collapsed={collapsed}>
-      <Menu>
-        <MenuItem>
-          <div
-            onClick={() => {
-              setCollapsed(!collapsed);
-            }}
-          >
+    <div className="hidden lg:block">
+      <Sidebar collapsed={collapsed}>
+        <Menu>
+          <MenuItem>
             <div
-              className={`flex transition-all duration-300 justify-${
-                collapsed ? "center" : "end"
-              } flex-1`}
+              onClick={() => {
+                setCollapsed(!collapsed);
+              }}
             >
-              <CgDetailsMore
-                className={`transition-all duration-300 rotate-180 ${
-                  collapsed ? "rotate-0" : ""
-                }`}
-              />
-            </div>
-          </div>
-        </MenuItem>
-        {!collapsed && (
-          <div className="text-sm text-gray-400 ml-6 font-bold my-2">
-            Categories
-          </div>
-        )}
-        {categories.length > 0 &&
-          categories.map((category, i) => {
-            return (
-              <MenuItem key={i} icon={category.icon}>
-                <span className="font-medium text-gray-700">
-                  {category.title}
-                </span>
-              </MenuItem>
-            );
-          })}
-        <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
-          <Link to="/completed" className="font-medium text-gray-700">
-            Completed Tasks
-          </Link>
-        </MenuItem>
-        <hr className="my-6" />
-        <Dialog open={openDialog} onOpenChange={() => setOpenDialog(true)}>
-          <DialogTrigger asChild>
-            <MenuItem icon={<MdOutlineAdd className="text-blue-600 text-xl" />}>
-              <span className="font-normal text-blue-600 cursor-pointer">
-                New Category
-              </span>
-            </MenuItem>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Create New Category</DialogTitle>
-              <DialogDescription>
-                To better organize your tasks, create categories according to
-                your preferences.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="title" className="text-right">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="Friends and Families"
-                  className="col-span-3"
-                  onChange={(e) => setCategoryTitle(e.target.value)}
+              <div
+                className={`flex transition-all duration-300 justify-${
+                  collapsed ? "center" : "end"
+                } flex-1`}
+              >
+                <CgDetailsMore
+                  className={`transition-all duration-300 rotate-180 ${
+                    collapsed ? "rotate-0" : ""
+                  }`}
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                onClick={() => {
-                  setOpenDialog(false);
-                  createCategory();
-                }}
+          </MenuItem>
+          {!collapsed && (
+            <div className="text-sm text-gray-400 ml-6 font-bold my-2">
+              Categories
+            </div>
+          )}
+          {categories.length > 0 &&
+            categories.map((category, i) => {
+              return (
+                <MenuItem key={i} icon={category.icon}>
+                  <Link to={category.path} className="font-medium text-gray-700">
+                    {category.title}
+                  </Link>
+                </MenuItem>
+              );
+            })}
+          <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
+            <Link to="/completed" className="font-medium text-gray-700">
+              Completed Tasks
+            </Link>
+          </MenuItem>
+          <hr className="my-6" />
+          <Dialog open={openDialog} onOpenChange={() => setOpenDialog(true)}>
+            <DialogTrigger asChild>
+              <MenuItem
+                icon={<MdOutlineAdd className="text-blue-600 text-xl" />}
               >
-                Create
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </Menu>
-    </Sidebar>
+                <span className="font-normal text-blue-600 cursor-pointer">
+                  New Category
+                </span>
+              </MenuItem>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create New Category</DialogTitle>
+                <DialogDescription>
+                  To better organize your tasks, create categories according to
+                  your preferences.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="title" className="text-right">
+                    Title
+                  </Label>
+                  <Input
+                    id="title"
+                    placeholder="Friends and Families"
+                    className="col-span-3"
+                    onChange={(e) => setCategoryTitle(e.target.value)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setOpenDialog(false);
+                    createCategory();
+                  }}
+                >
+                  Create
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </Menu>
+      </Sidebar>
+    </div>
   );
 };
 
