@@ -19,6 +19,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SidePanel = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -28,22 +29,22 @@ const SidePanel = () => {
     {
       title: "All Tasks",
       icon: <BsClipboardCheck className="text-gray-800" />,
-      path: "/"
+      path: "/",
     },
     {
       title: "Important",
       icon: <AiFillStar className="text-yellow-500" />,
-      path: "/important"
+      path: "/important",
     },
     {
       title: "Personal",
       icon: <BsFillPersonFill className="text-blue-500" />,
-      path: "/personal"
+      path: "/personal",
     },
     {
       title: "Work",
       icon: <MdWork className="text-amber-950" />,
-      path: "/work"
+      path: "/work",
     },
   ]);
 
@@ -55,7 +56,8 @@ const SidePanel = () => {
     };
 
     // Add the new category to the state.
-    setCategories([...categories, newCategory]);
+    if (categoryTitle !== "") setCategories([...categories, newCategory]);
+    else toast.error("Please enter a title for the category.");
   };
 
   return (
@@ -90,7 +92,10 @@ const SidePanel = () => {
             categories.map((category, i) => {
               return (
                 <MenuItem key={i} icon={category.icon}>
-                  <Link to={category.path} className="font-medium text-gray-700">
+                  <Link
+                    to={category.path}
+                    className="font-medium text-gray-700"
+                  >
                     {category.title}
                   </Link>
                 </MenuItem>
@@ -102,7 +107,10 @@ const SidePanel = () => {
             </Link>
           </MenuItem>
           <hr className="my-6" />
-          <Dialog open={openDialog} onOpenChange={() => setOpenDialog(true)}>
+          <Dialog
+            open={openDialog}
+            onOpenChange={() => setOpenDialog((prev) => !prev)}
+          >
             <DialogTrigger asChild>
               <MenuItem
                 icon={<MdOutlineAdd className="text-blue-600 text-xl" />}

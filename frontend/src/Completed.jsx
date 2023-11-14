@@ -1,8 +1,7 @@
 import Navbar from "./components/Navbar";
 import { BiTimeFive } from "react-icons/bi";
 import { AiOutlineClockCircle } from "react-icons/ai";
-import { RiDeleteBin6Line } from "react-icons/ri";
-import { CgDetailsMore } from "react-icons/cg";
+import { RiDeleteBin6Line, RiInformationLine } from "react-icons/ri";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -22,7 +21,11 @@ import { BiChevronsRight } from "react-icons/bi";
 
 const Completed = () => {
   const [completed, setCompleted] = useState([
-    { title: "1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", date: "2" },
+    {
+      title:
+        "1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      date: "2",
+    },
     { title: "1", date: "2" },
     { title: "1", date: "2" },
   ]);
@@ -53,9 +56,9 @@ const Completed = () => {
       <div className="flex flex-1">
         <SidePanel />
         <div className="flex flex-col w-full">
-          <div className="bg-gray-50 pt-8 px-12 flex gap-x-2 items-center">
-            <p className="text-2xl">Completed Tasks</p>
-            <BiChevronsRight className="text-2xl pt-2"/>
+          <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
+            <p className="text-lg lg:text-2xl">Completed Tasks</p>
+            <BiChevronsRight className="text-md lg:text-xl" />
           </div>
           <div className="lg:grid lg:grid-cols-1 lg:gap-x-24 pt-4 lg:pt-8 px-2 lg:px-12 bg-gray-50 flex-1">
             <div className="flex flex-col gap-y-2 p-4">
@@ -65,19 +68,20 @@ const Completed = () => {
                     <button
                       type="button"
                       key={i}
-                      draggable="true"
-                      className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center"
+                      className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
                     >
                       <div>
-                        <p className="text-sm lg:text-xl text-left">{item.title}</p>
+                        <p className="text-sm lg:text-xl text-left whitespace-normal break-all overflow-hidden">
+                          {item.title}
+                        </p>
                         <div className="text-sm text-gray-500 flex items-center gap-x-1">
                           <AiOutlineClockCircle />
                           {item.date && item.date}
                         </div>
                       </div>
-                      <div className="flex gap-x-4 text-gray-500">
+                      <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
                         <button>
-                          <CgDetailsMore className="text-md lg:text-2xl hover:text-blue-600" />
+                          <RiInformationLine className="text-md lg:text-2xl hover:text-blue-600" />
                         </button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
