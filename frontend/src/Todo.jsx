@@ -160,6 +160,8 @@ const Todo = () => {
         if (res.status === 200) {
           toast.success("Task updated");
           setTask({});
+          setUpdateTitle("");
+          setUpdateDate("");
           getTasks();
         }
       })
@@ -366,9 +368,7 @@ const Todo = () => {
                                     {updateDate ? (
                                       format(updateDate, "PPP")
                                     ) : task.targetDate ? (
-                                      <span>
-                                        {task.targetDate.slice(0, 10)}
-                                      </span>
+                                      format(parseISO(task.targetDate), "PPP")
                                     ) : (
                                       <span>Pick a Date</span>
                                     )}
