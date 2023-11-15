@@ -1,4 +1,4 @@
-package com.backend.todolist.auth.factory;
+package com.backend.todolist.auth.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +18,7 @@ import com.backend.todolist.auth.repository.UserRepository;
 import com.backend.todolist.errorhandler.BadRequestException;
 
 @Service
-public class UserFactory {
+public class UserResponseFactory {
 	@Autowired
     UserRepository userRepository;
 	
@@ -32,7 +32,7 @@ public class UserFactory {
 	JwtTokenGenerator jwtTokenGenerator;
 
 	
-	public UserSignupResponse signup(UserSignupRequest userSignupRequest) {
+	public UserSignupResponse createSignUpResponse(UserSignupRequest userSignupRequest) {
 		try {
 			String username = userSignupRequest.getUsername();
 	        String password = userSignupRequest.getPassword();
@@ -53,7 +53,7 @@ public class UserFactory {
         }
 	}
 	
-	public UserSigninResponse signIn(UserSigninRequest userSigninRequest) {
+	public UserSigninResponse createSignInResponse(UserSigninRequest userSigninRequest) {
 		try {
 			String username = userSigninRequest.getUsername();
 	        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, userSigninRequest.getPassword()));

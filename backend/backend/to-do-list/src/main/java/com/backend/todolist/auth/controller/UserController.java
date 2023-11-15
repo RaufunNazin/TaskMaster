@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.todolist.auth.jwt.JwtTokenGenerator;
 import com.backend.todolist.auth.repository.UserRepository;
-import com.backend.todolist.auth.factory.UserFactory;
+import com.backend.todolist.auth.service.UserResponseFactory;
 import com.backend.todolist.errorhandler.CustomException;
 
 import io.swagger.annotations.ApiResponse;
@@ -44,17 +44,17 @@ public class UserController {
     UserRepository userRepository;
 	
 	@Autowired
-	UserFactory userFactory;
+	UserResponseFactory userResponseFactory;
 
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/auth/signin", method = RequestMethod.POST)
     public ResponseEntity<UserSigninResponse> signin(@Valid @RequestBody UserSigninRequest userSigninRequest) {
-		return new ResponseEntity<>(userFactory.signIn(userSigninRequest), HttpStatus.OK);
+		return new ResponseEntity<>(userResponseFactory.createSignInResponse(userSigninRequest), HttpStatus.OK);
     }
 
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/auth/signup", method = RequestMethod.POST)
     public ResponseEntity<UserSignupResponse> signup(@Valid @RequestBody UserSignupRequest userSignupRequest) {
-		return new ResponseEntity<>(userFactory.signup(userSignupRequest), HttpStatus.OK);
+		return new ResponseEntity<>(userResponseFactory.createSignUpResponse(userSignupRequest), HttpStatus.OK);
     }
 }

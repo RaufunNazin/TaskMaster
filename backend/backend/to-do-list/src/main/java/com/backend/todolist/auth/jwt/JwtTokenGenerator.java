@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.backend.todolist.auth.factory.CustomUserDetailsService;
+import com.backend.todolist.auth.service.CustomUserDetailsService;
 import com.backend.todolist.errorhandler.InvalidJwtAuthenticationException;
 
 import io.jsonwebtoken.Claims;
