@@ -1,4 +1,4 @@
-package com.backend.todolist.auth.factory;
+package com.backend.todolist.auth.service;
 
 import java.util.ArrayList;
 import java.util.List;
