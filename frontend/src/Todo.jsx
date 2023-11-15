@@ -1,9 +1,8 @@
 import Navbar from "./components/Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar } from "./ui/calendar";
 import { FcOk } from "react-icons/fc";
 import { format } from "date-fns";
-import { MdAddCircleOutline, MdOutlineAdd } from "react-icons/md";
 import {
   AiOutlineClockCircle,
   AiOutlineStar,
@@ -28,71 +27,108 @@ import {
 import SidePanel from "./components/SidePanel";
 import { Button } from "./ui/button";
 import { BiChevronsRight } from "react-icons/bi";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { useLocation, useNavigate } from "react-router-dom";
+import api from "./api";
 
 const Todo = () => {
-  const [pending, setPending] = useState([
-    { title: "1", date: "2" },
-    { title: "1", date: "2" },
-    { title: "1", date: "2" },
-  ]);
-  const [completed, setCompleted] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [pending, setPending] = useState([]);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [date, setDate] = useState(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [calendarOpen1, setCalendarOpen1] = useState(false);
 
   const addTask = () => {
-    const newTask = {
-      title: title,
-      description: description,
-      date: date?.toString().slice(3, 15),
-    };
-    if (title) {
-      setPending((prevItems) => [...prevItems, newTask]);
+    if (title && date) {
       setTitle("");
-      setDescription("");
-    } else toast.error("Please enter a title");
+      api
+        .post(
+          "/todo",
+          {
+            title: title,
+            targetDate: date,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          if (res.status === 201) {
+            toast.success("Task added");
+            getTasks();
+          }
+        })
+        .catch((err) => {
+          toast.error(err.response.data.message);
+        });
+    } else if (!title) toast.error("Please enter a title");
+    else if (!date) toast.error("Please select a date");
   };
 
-  const deleteTask = (index) => {
-    // Create a copy of the pending array
-    const updatedPending = [...pending];
-    // Remove the item at the specified index
-    updatedPending.splice(index, 1);
-    // Update the state with the modified array
-    setPending(updatedPending);
+  const getTasks = () => {
+    api
+      .get("/todo/0/10", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setPending(
+            [...res.data].filter((task) => task.isCompleted === false)
+          );
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
   };
 
-  // Function to mark a task as completed
-  const completeTask = (index) => {
-    const updatedPending = [...pending];
-    const completedItem = pending[index]; // Get the task to mark as completed
-    updatedPending.splice(index, 1); // Remove from pending
-    setPending(updatedPending);
-    setCompleted([...completed, completedItem]); // Add to completed
+  const deleteTask = (id) => {
+    api
+      .delete(`/todo/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 204) {
+          toast.success("Task deleted");
+          getTasks();
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
   };
 
-  const deleteCompletedTask = (index) => {
-    // Create a copy of the pending array
-    const updatedCompleted = [...completed];
-    // Remove the item at the specified index
-    updatedCompleted.splice(index, 1);
-    // Update the state with the modified array
-    setCompleted(updatedCompleted);
+  const completeTask = (id) => {
+    api
+      .put(
+        `/todo/${id}/markcomplete`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success("Task marked as completed");
+          getTasks();
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
   };
+
+  useEffect(() => {
+    getTasks();
+    if (localStorage.getItem("token") === null) {
+      navigate("/login", { state: "redirected" });
+    }
+    if (location.state === "login") {
+      toast.success("Logged in successfully");
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -118,8 +154,8 @@ const Todo = () => {
           </div>
           <div className="grid grid-cols-1 gap-x-24 pt-4 lg:pt-8 px-2 lg:px-12 bg-gray-50 flex-1">
             <div>
-              <div className="lg:flex lg:flex-col gap-y-2 p-4 hidden">
-                <div className="shadow-md py-6 rounded-md bg-white px-4 lg:px-10 flex gap-x-4 items-center">
+              <div className="lg:flex lg:flex-col gap-y-2 p-4">
+                <div className="shadow-md py-6 rounded-md bg-white px-4 lg:px-10 lg:flex gap-x-4 items-center">
                   <input
                     type="text"
                     value={title}
@@ -127,48 +163,56 @@ const Todo = () => {
                     className="w-full outline-none ring-0 border-none"
                     onChange={(e) => setTitle(e.target.value)}
                   />
-                  <Popover
-                    open={calendarOpen}
-                    onOpenChange={() => setCalendarOpen(true)}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={`w-[100px] lg:w-[280px] text-sm justify-center text-left font-normal ${
-                          !date && "text-muted-foreground"
-                        }`}
-                      >
-                        <AiTwotoneCalendar className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : <span>Pick a Date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={(newDate) => {
-                          setDate(newDate);
-                          setCalendarOpen(false);
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <button
-                    type="button"
-                    className="cursor-pointer"
-                    onClick={() => addTask()}
-                  >
-                    <BsCheck2 className="text-3xl text-blue-600 hover:text-blue-500" />
-                  </button>
+                  <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
+                    <Popover
+                      open={calendarOpen}
+                      onOpenChange={() => setCalendarOpen(true)}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={`w-full lg:w-[280px] text-sm justify-center text-left font-normal ${
+                            !date && "text-muted-foreground"
+                          }`}
+                        >
+                          <AiTwotoneCalendar className="mr-2 h-4 w-4" />
+                          {date ? (
+                            format(date, "PPP")
+                          ) : (
+                            <span>Pick a Date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={(newDate) => {
+                            setDate(newDate);
+                            setCalendarOpen(false);
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <button
+                      type="button"
+                      className="cursor-pointer"
+                      onClick={() => addTask()}
+                    >
+                      <BsCheck2 className="text-3xl text-blue-600 hover:text-blue-500" />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <Dialog
+              {/* <Dialog
                 open={openDialog}
-                onOpenChange={() => setOpenDialog((prev) => !prev)}
+                onOpenChange={() => {
+                  setOpenDialog(true);
+                }}
               >
                 <DialogTrigger asChild>
-                  <div className="lg:hidden text-5xl fixed bottom-5 right-5">
+                  <div className="lg:hidden text-gray-800 text-5xl fixed bottom-5 right-5">
                     <MdAddCircleOutline />
                   </div>
                 </DialogTrigger>
@@ -195,8 +239,11 @@ const Todo = () => {
                         Due Date
                       </Label>
                       <Popover
-                        open={calendarOpen1}
-                        onOpenChange={setCalendarOpen1}
+                        open={calendarOpenMobile}
+                        onOpenChange={() => {
+                          setCalendarOpenMobile(true);
+                          setOpenDialog(true);
+                        }}
                       >
                         <PopoverTrigger asChild>
                           <Button
@@ -214,12 +261,22 @@ const Todo = () => {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
+                          <div className="flex m-1">
+                            <div className="flex-1"></div>
+                            <PopoverClose>
+                              <MdAddCircleOutline
+                                size={24}
+                                className="text-primary/60 hover:text-destructive"
+                              />
+                            </PopoverClose>
+                          </div>
                           <Calendar
                             mode="single"
                             selected={date}
                             onSelect={(newDate) => {
+                              console.log(newDate);
                               setDate(newDate);
-                              setCalendarOpen(false);
+                              setOpenDialog(true);
                             }}
                             initialFocus
                           />
@@ -239,14 +296,14 @@ const Todo = () => {
                     </Button>
                   </DialogFooter>
                 </DialogContent>
-              </Dialog>
+              </Dialog> */}
               <div className="flex flex-col gap-y-2 p-4">
                 {pending.length > 0 ? (
-                  pending.map((item, i) => {
+                  pending.map((item) => {
                     return (
                       <button
                         type="button"
-                        key={i}
+                        key={item.id}
                         draggable="true"
                         className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
                       >
@@ -256,7 +313,7 @@ const Todo = () => {
                           </p>
                           <div className="text-sm text-gray-500 flex items-center gap-x-1">
                             <AiOutlineClockCircle />
-                            {item.date && item.date}
+                            {item.targetDate && item.targetDate.slice(0, 10)}
                           </div>
                         </div>
                         <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
@@ -285,7 +342,7 @@ const Todo = () => {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => deleteTask(i)}
+                                  onClick={() => deleteTask(item.id)}
                                 >
                                   Delete
                                 </AlertDialogAction>
@@ -311,7 +368,7 @@ const Todo = () => {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => completeTask(i)}
+                                  onClick={() => completeTask(item.id)}
                                 >
                                   Done
                                 </AlertDialogAction>
