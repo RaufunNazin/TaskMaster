@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import { BiTimeFive } from "react-icons/bi";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiDeleteBin6Line, RiInformationLine } from "react-icons/ri";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   AlertDialog,
@@ -16,28 +16,50 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import SidePanel from "./components/SidePanel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BiChevronsRight } from "react-icons/bi";
+import api from "./api";
 
 const Completed = () => {
-  const [completed, setCompleted] = useState([
-    {
-      title:
-        "1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      date: "2",
-    },
-    { title: "1", date: "2" },
-    { title: "1", date: "2" },
-  ]);
+  const [completed, setCompleted] = useState();
 
-  const deleteCompletedTask = (index) => {
-    // Create a copy of the pending array
-    const updatedCompleted = [...completed];
-    // Remove the item at the specified index
-    updatedCompleted.splice(index, 1);
-    // Update the state with the modified array
-    setCompleted(updatedCompleted);
+  const getTasks = () => {
+    api
+      .get("/todo/0/10", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setCompleted(
+            [...res.data].filter((task) => task.isCompleted === true)
+          );
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
   };
+
+  const deleteTask = (id) => {
+    api
+      .delete(`/todo/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 204) {
+          toast.success("Task deleted");
+          getTasks();
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  useEffect(() => {
+    getTasks();
+  }, []);
+
   return (
     <div className="flex flex-col h-screen">
       <ToastContainer
@@ -63,11 +85,11 @@ const Completed = () => {
           <div className="lg:grid lg:grid-cols-1 lg:gap-x-24 pt-4 lg:pt-8 px-2 lg:px-12 bg-gray-50 flex-1">
             <div className="flex flex-col gap-y-2 p-4">
               {completed?.length > 0 ? (
-                completed?.map((item, i) => {
+                completed?.map((item) => {
                   return (
                     <button
                       type="button"
-                      key={i}
+                      key={item.id}
                       className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
                     >
                       <div>
@@ -76,7 +98,7 @@ const Completed = () => {
                         </p>
                         <div className="text-sm text-gray-500 flex items-center gap-x-1">
                           <AiOutlineClockCircle />
-                          {item.date && item.date}
+                          {item.targetDate && item.targetDate.slice(0, 10)}
                         </div>
                       </div>
                       <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
@@ -102,7 +124,7 @@ const Completed = () => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => deleteCompletedTask(i)}
+                                onClick={() => deleteTask(item.id)}
                               >
                                 Delete
                               </AlertDialogAction>
