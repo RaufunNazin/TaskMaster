@@ -18,10 +18,11 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const SidePanel = () => {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -91,21 +92,21 @@ const SidePanel = () => {
           {categories.length > 0 &&
             categories.map((category, i) => {
               return (
-                <MenuItem key={i} icon={category.icon}>
-                  <Link
-                    to={category.path}
-                    className="font-medium text-gray-700"
-                  >
-                    {category.title}
-                  </Link>
-                </MenuItem>
+                <div className="w-full" onClick={() => navigate(category.path)}>
+                  <MenuItem key={i} icon={category.icon}>
+                    <div className="font-medium text-gray-700">
+                      {category.title}
+                    </div>
+                  </MenuItem>
+                </div>
               );
             })}
-          <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
-            <Link to="/completed" className="font-medium text-gray-700">
-              Completed Tasks
-            </Link>
-          </MenuItem>
+          <div className="w-full" onClick={() => navigate("/completed")}>
+            <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
+              <div className="font-medium text-gray-700">Completed Tasks</div>
+            </MenuItem>
+          </div>
+
           <hr className="my-6" />
           <Dialog
             open={openDialog}

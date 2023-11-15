@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import { useEffect, useState } from "react";
 import { Calendar } from "./ui/calendar";
 import { FcOk } from "react-icons/fc";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import {
   AiOutlineClockCircle,
   AiOutlineStar,
@@ -29,6 +29,7 @@ import { Button } from "./ui/button";
 import { BiChevronsRight } from "react-icons/bi";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "./api";
+import { CiEdit } from "react-icons/ci";
 
 const Todo = () => {
   const navigate = useNavigate();
@@ -37,10 +38,18 @@ const Todo = () => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [task, setTask] = useState({});
+  const [updateTitle, setUpdateTitle] = useState("");
+  const [updateDate, setUpdateDate] = useState(null);
+  const [updateCalendarOpen, setUpdateCalendarOpen] = useState(false);
+
+  const today = new Date();
+  const beforeToday = { before: today };
 
   const addTask = () => {
     if (title && date) {
       setTitle("");
+      setDate("");
       api
         .post(
           "/todo",
@@ -69,7 +78,7 @@ const Todo = () => {
 
   const getTasks = () => {
     api
-      .get("/todo/0/10", {
+      .get("/todo/0/1000", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
@@ -120,6 +129,45 @@ const Todo = () => {
       });
   };
 
+  const getTask = (id) => {
+    api
+      .get(`/todo/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setTask(res.data);
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const updateTask = (id) => {
+    api
+      .put(
+        `/todo/${id}`,
+        {
+          title: updateTitle ? updateTitle : task.title,
+          targetDate: updateDate ? updateDate : task.targetDate,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success("Task updated");
+          setTask({});
+          getTasks();
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
   useEffect(() => {
     getTasks();
     if (localStorage.getItem("token") === null) {
@@ -131,12 +179,12 @@ const Todo = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen max-w-screen">
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={2000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
@@ -145,7 +193,7 @@ const Todo = () => {
         theme="light"
       />
       <Navbar />
-      <div className="flex flex-1">
+      <div className="flex flex-1 relative">
         <SidePanel />
         <div className="flex flex-col w-full">
           <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
@@ -164,10 +212,7 @@ const Todo = () => {
                     onChange={(e) => setTitle(e.target.value)}
                   />
                   <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
-                    <Popover
-                      open={calendarOpen}
-                      onOpenChange={() => setCalendarOpen(true)}
-                    >
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                       <PopoverTrigger asChild>
                         <Button
                           variant={"outline"}
@@ -185,7 +230,9 @@ const Todo = () => {
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
                         <Calendar
+                          defaultMonth={today}
                           mode="single"
+                          disabled={beforeToday}
                           selected={date}
                           onSelect={(newDate) => {
                             setDate(newDate);
@@ -205,178 +252,153 @@ const Todo = () => {
                   </div>
                 </div>
               </div>
-              {/* <Dialog
-                open={openDialog}
-                onOpenChange={() => {
-                  setOpenDialog(true);
-                }}
-              >
-                <DialogTrigger asChild>
-                  <div className="lg:hidden text-gray-800 text-5xl fixed bottom-5 right-5">
-                    <MdAddCircleOutline />
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Add New Task</DialogTitle>
-                    <DialogDescription></DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="title" className="text-right">
-                        Title
-                      </Label>
-                      <Input
-                        id="title"
-                        placeholder="Friends and Families"
-                        className="col-span-3"
-                        onChange={(e) => setTitle(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="title" className="text-right">
-                        Due Date
-                      </Label>
-                      <Popover
-                        open={calendarOpenMobile}
-                        onOpenChange={() => {
-                          setCalendarOpenMobile(true);
-                          setOpenDialog(true);
-                        }}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={`w-full col-span-3 text-sm justify-center text-left font-normal ${
-                              !date && "text-muted-foreground"
-                            }`}
-                          >
-                            <AiTwotoneCalendar className="mr-2 h-4 w-4" />
-                            {date ? (
-                              format(date, "PPP")
-                            ) : (
-                              <span>Pick a Date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <div className="flex m-1">
-                            <div className="flex-1"></div>
-                            <PopoverClose>
-                              <MdAddCircleOutline
-                                size={24}
-                                className="text-primary/60 hover:text-destructive"
-                              />
-                            </PopoverClose>
-                          </div>
-                          <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={(newDate) => {
-                              console.log(newDate);
-                              setDate(newDate);
-                              setOpenDialog(true);
-                            }}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setOpenDialog(false);
-                        addTask();
-                      }}
-                    >
-                      Create
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog> */}
               <div className="flex flex-col gap-y-2 p-4">
                 {pending.length > 0 ? (
                   pending.map((item) => {
                     return (
-                      <button
-                        type="button"
-                        key={item.id}
-                        draggable="true"
-                        className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
-                      >
-                        <div>
-                          <p className="text-sm lg:text-xl text-left whitespace-normal break-all overflow-hidden">
-                            {item.title}
-                          </p>
-                          <div className="text-sm text-gray-500 flex items-center gap-x-1">
-                            <AiOutlineClockCircle />
-                            {item.targetDate && item.targetDate.slice(0, 10)}
+                      <div>
+                        <button
+                          type="button"
+                          key={item.id}
+                          className={`${
+                            task && task.id === item.id ? "hidden" : "block"
+                          } w-full shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3`}
+                        >
+                          <div>
+                            <p className="text-lg lg:text-xl text-left whitespace-normal break-all overflow-hidden">
+                              {item.title}
+                            </p>
+                            <div className="text-sm text-gray-500 flex items-center gap-x-1">
+                              <AiOutlineClockCircle />
+                              {item.targetDate && item.targetDate.slice(0, 10)}
+                            </div>
+                          </div>
+                          <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
+                            <button
+                              type="button"
+                              onClick={() => getTask(item.id)}
+                            >
+                              <CiEdit className="text-md lg:text-2xl hover:text-blue-600" />
+                            </button>
+                            <button>
+                              <AiOutlineStar className="text-md lg:text-2xl hover:text-yellow-600" />
+                            </button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button type="button">
+                                  <RiDeleteBin6Line className="text-md lg:text-2xl hover:text-red-800" />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Are you absolutely sure?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will
+                                    permanently delete your task
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteTask(item.id)}
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button type="button">
+                                  <BsCheck2Circle className="text-md lg:text-2xl hover:text-green-600" />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Task Completed?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will mark
+                                    your task as completed
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => completeTask(item.id)}
+                                  >
+                                    Done
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </button>
+                        <div
+                          className={`${
+                            task && task.id === item.id ? "block" : "hidden"
+                          }`}
+                        >
+                          <div className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 lg:flex gap-x-4 items-center">
+                            <input
+                              type="text"
+                              value={updateTitle ? updateTitle : task.title}
+                              className="w-full outline-none ring-0 border-none"
+                              onChange={(e) => setUpdateTitle(e.target.value)}
+                            />
+                            <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
+                              <Popover
+                                open={updateCalendarOpen}
+                                onOpenChange={() => setUpdateCalendarOpen(true)}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={`w-full lg:w-[280px] text-sm justify-center text-left font-normal ${
+                                      !task.targetDate &&
+                                      "text-muted-foreground"
+                                    }`}
+                                  >
+                                    <AiTwotoneCalendar className="mr-2 h-4 w-4" />
+                                    {updateDate ? (
+                                      format(updateDate, "PPP")
+                                    ) : task.targetDate ? (
+                                      <span>
+                                        {task.targetDate.slice(0, 10)}
+                                      </span>
+                                    ) : (
+                                      <span>Pick a Date</span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    defaultMonth={today}
+                                    mode="single"
+                                    disabled={beforeToday}
+                                    selected={updateDate}
+                                    onSelect={(newDate) => {
+                                      setUpdateDate(newDate);
+                                      setUpdateCalendarOpen(false);
+                                    }}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <button
+                                type="button"
+                                className="cursor-pointer"
+                                onClick={() => updateTask(item.id)}
+                              >
+                                <BsCheck2 className="text-3xl text-blue-600 hover:text-blue-500" />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
-                          <button>
-                            <RiInformationLine className="text-md lg:text-2xl hover:text-blue-600" />
-                          </button>
-                          <button>
-                            <AiOutlineStar className="text-md lg:text-2xl hover:text-yellow-600" />
-                          </button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <button type="button">
-                                <RiDeleteBin6Line className="text-md lg:text-2xl hover:text-red-800" />
-                              </button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you absolutely sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete your task
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteTask(item.id)}
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <button type="button">
-                                <BsCheck2Circle className="text-md lg:text-2xl hover:text-green-600" />
-                              </button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Task Completed?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will mark
-                                  your task as completed
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => completeTask(item.id)}
-                                >
-                                  Done
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </button>
+                      </div>
                     );
                   })
                 ) : (
