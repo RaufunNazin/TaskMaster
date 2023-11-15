@@ -1,17 +1,14 @@
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "../ui/menubar";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 import React from "react";
 
-function MenubarDemo() {
+function Navbar() {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login", { state: "logout" });
+  };
   return (
     <div className="flex justify-between items-center border-b bg-gray-900 border-b-black py-2 px-4 lg:p-4 lg:px-24">
       <button
@@ -21,30 +18,26 @@ function MenubarDemo() {
         TaskMaster
       </button>
       <div className="mr-12 lg:mr-2">
-        <Menubar>
-          <MenubarMenu>
-            <MenubarTrigger className="cursor-pointer ">Login</MenubarTrigger>
-            <MenubarContent>
-              <MenubarItem
-                onClick={() => (window.location.pathname = "/login")}
-              >
-                Using Email-Password
-              </MenubarItem>
-              <MenubarSeparator />
-              <MenubarSub>
-                <MenubarSubTrigger>Using social media</MenubarSubTrigger>
-                <MenubarSubContent>
-                  <MenubarItem>Google</MenubarItem>
-                  <MenubarItem>Facebook</MenubarItem>
-                  <MenubarItem>Github</MenubarItem>
-                </MenubarSubContent>
-              </MenubarSub>
-            </MenubarContent>
-          </MenubarMenu>
-        </Menubar>
+        {localStorage.getItem("token") ? (
+          <Button
+            type="button"
+            onClick={() => handleLogout()}
+            className="bg-white text-black hover:bg-slate-200"
+          >
+            Logout
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="bg-white text-black hover:bg-slate-200"
+          >
+            Login
+          </Button>
+        )}
       </div>
     </div>
   );
 }
 
-export default MenubarDemo;
+export default Navbar;

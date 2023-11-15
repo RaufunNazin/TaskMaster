@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar } from "./ui/calendar";
 import { FcOk } from "react-icons/fc";
 import { format } from "date-fns";
@@ -39,8 +39,11 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Todo = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [pending, setPending] = useState([
     { title: "1", date: "2" },
     { title: "1", date: "2" },
@@ -93,6 +96,15 @@ const Todo = () => {
     // Update the state with the modified array
     setCompleted(updatedCompleted);
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("token") === null) {
+      navigate("/login", { state: "redirected" });
+    }
+    if (location.state === "login") {
+      toast.success("Logged in successfully");
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">

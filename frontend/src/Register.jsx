@@ -4,31 +4,34 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import auth from "./auth";
+import api from "./api";
+import { CiStickyNote } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [cpassword, setCPassword] = useState("");
   const register = () => {
-    const dataToPost = new FormData();
-    dataToPost.set("name", name);
-    dataToPost.set("email", email);
-    dataToPost.set("password", password);
     if (cpassword !== password) {
       toast.error("Passwords do not match");
     } else {
-      auth
-        .post("/users/create", {
-          name: name,
-          email: email,
-          password: password
+      api
+        .post("/auth/signup", {
+          // name: name,
+          username: username,
+          password: password,
         })
         .then((res) => {
-          console.log(res);
+          if (res.status === 200) {
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("user", res.data.username);
+            navigate("/", { state: "login" });
+          }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => toast.error(err.response.data.message));
     }
   };
   return (
@@ -43,15 +46,23 @@ function Register() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
+        theme="light"
       />
-      <div className="w-full lg:w-2/6 mx-auto lg:border lg:rounded-lg lg:shadow-lg bg-white">
-        <div className="lg:m-24">
-          <div className="text-center text-2xl mb-4 lg:mb-8 font-medium">
+      <div className="w-full md:w-2/3 lg:w-3/5 xl:w-1/3 mx-auto lg:border lg:rounded-lg lg:shadow-lg lg:bg-white">
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="fixed top-5 left-5 flex gap-x-2 items-center text-center font-mono text-3xl mb-4 lg:mb-8 font-medium"
+        >
+          <p>TaskMaster</p>
+          <CiStickyNote />
+        </button>
+        <div className="lg:m-16">
+          <div className="text-center text-2xl mb-8 lg:mb-12 font-medium">
             Create your account
           </div>
-          <div className="flex flex-col gap-y-4 px-5 lg:pr-0">
-            <div className="grid grid-cols-4 items-center">
+          <div className="flex flex-col gap-y-6 px-8 lg:px-12">
+            {/* <div className="grid grid-cols-4 items-center">
               <Label htmlFor="name" className="text-left">
                 Name
               </Label>
@@ -61,44 +72,35 @@ function Register() {
                 type="text"
                 className="col-span-3"
               />
-            </div>
-            <div className="grid grid-cols-4 items-center">
-              <Label htmlFor="email" className="text-left">
-                Email
-              </Label>
+            </div> */}
+            <div className="">
               <Input
-                onChange={(e) => setEmail(e.target.value)}
-                id="email"
-                type="email"
-                className="col-span-3"
+                onChange={(e) => setUsername(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="Username"
               />
             </div>
-            <div className="grid grid-cols-4 items-center">
-              <Label htmlFor="password" className="text-left">
-                Password
-              </Label>
+            <div className="">
               <Input
                 onChange={(e) => setPassword(e.target.value)}
                 id="password"
                 type="password"
-                className="col-span-3"
+                placeholder="Password"
               />
             </div>
-            <div className="grid grid-cols-4 items-center">
-              <Label htmlFor="cpassword" className="text-left">
-                Confirm Password
-              </Label>
+            <div className="">
               <Input
                 onChange={(e) => setCPassword(e.target.value)}
                 id="cpassword"
                 type="password"
-                className="col-span-3"
+                placeholder="Confirm Password"
               />
             </div>
             <div className="flex justify-center">
               <Button
                 onClick={() => register()}
-                className="col-start-2 px-16"
+                className="px-16"
                 type="button"
               >
                 Signup
@@ -108,7 +110,7 @@ function Register() {
               <div className="text-gray-500">Already have an account?</div>
               <button
                 onClick={() => (window.location.pathname = "/login")}
-                className="hover:underline"
+                className="hover:underline text-blue-600 font-medium"
               >
                 Log in
               </button>
