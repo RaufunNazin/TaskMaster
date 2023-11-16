@@ -35,8 +35,8 @@ public class TodoService implements TodoServiceDecorator{
 	private TodoPagingRepository todoPagingRepository;
 
 	public TodoService() {
-		TodoObserver todoObserver = new TodoNotificationService(messagingTemplate);
-		addObserver(todoObserver); // Add the observer
+//		TodoObserver todoObserver = new TodoNotificationService(messagingTemplate);
+//		addObserver(todoObserver); // Add the observer
 	}
 
     @Override
