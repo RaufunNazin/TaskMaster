@@ -2,10 +2,14 @@ package com.backend.todolist.service;
 
 import java.util.List;
 
+import com.backend.todolist.observer.TodoNotificationService;
+import com.backend.todolist.observer.TodoObserver;
+import com.backend.todolist.observer.TodoSubject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.backend.todolist.controller.CountResponse;
@@ -19,18 +23,30 @@ import com.backend.todolist.repository.TodoRepository;
 import com.backend.todolist.repository.TodoPagingRepository;
 
 @Service
-public class TodoService {
+public class TodoService implements TodoServiceDecorator{
+	private final TodoSubject todoSubject = new TodoSubject();
+	private SimpMessagingTemplate messagingTemplate;
+
+
 	@Autowired
 	private TodoRepository todoRepository;
 	
 	@Autowired
 	private TodoPagingRepository todoPagingRepository;
-	
+
+	public TodoService() {
+		TodoObserver todoObserver = new TodoNotificationService(messagingTemplate);
+		addObserver(todoObserver); // Add the observer
+	}
+
+    @Override
 	public Todo create(TodoCreateRequest todoCreateRequest, String username) {
 		Todo todo = new Todo(todoCreateRequest.getTitle(), todoCreateRequest.getTargetDate(), username);
+		todoSubject.createTodo(todoCreateRequest.getTitle());
 		return todoRepository.save(todo);
 	}
-	
+
+    @Override
 	public Todo readById(long id, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
@@ -38,11 +54,13 @@ public class TodoService {
 		}
 		return todo;
 	}
-	
+
+    @Override
 	public List<Todo> readAll(String username) {
 		return todoRepository.findAllByUsername(username);
 	}
-	
+
+    @Override
 	public List<Todo> readAllPageable(String username, String pageNumber, String pageSize) {
 		int _pageNumber = pageNumberStringToInteger(pageNumber);
 		int _pageSize = pageSizeStringToInteger(pageSize);
@@ -50,12 +68,14 @@ public class TodoService {
 		Pageable pageable = PageRequest.of(_pageNumber, _pageSize, Sort.by(Sort.Direction.ASC, "targetDate"));
 		return todoPagingRepository.findAllByUsername(username, pageable);
 	}
-	
+
+    @Override
 	public List<Todo> readAllByIsCompleted(String username, String isCompleted) {
 		boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
 		return todoRepository.findAllByUsernameAndIsCompleted(username, _isCompleted);
 	}
-	
+
+    @Override
 	public List<Todo> readAllByIsCompletedPageable(String username, String isCompleted, String pageNumber, String pageSize) {
 		boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
 		int _pageNumber = pageNumberStringToInteger(pageNumber);
@@ -64,7 +84,8 @@ public class TodoService {
 		Pageable pageable = PageRequest.of(_pageNumber, _pageSize, Sort.by(Sort.Direction.ASC, "targetDate"));
 		return todoPagingRepository.findAllByUsernameAndIsCompleted(username, _isCompleted, pageable);
 	}
-	
+
+    @Override
 	public void deleteById(long id, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
@@ -72,7 +93,8 @@ public class TodoService {
 		}
 		todoRepository.deleteById(id);
 	}
-	
+
+    @Override
 	public Todo updateById(long id, TodoUpdateRequest todoUpdateRequest, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
@@ -83,7 +105,8 @@ public class TodoService {
 		todo.setTargetDate(todoUpdateRequest.getTargetDate());
 		return todoRepository.save(todo);
 	}
-	
+
+    @Override
 	public Todo markCompleteById(long id, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
@@ -93,11 +116,13 @@ public class TodoService {
 		todo.setIsCompleted(!todo.getIsCompleted());
 		return todoRepository.save(todo);
 	}
-	
+
+    @Override
 	public CountResponse countAll(String username) {
 		return new CountResponse(todoRepository.countByUsername(username));
 	}
-	
+
+    @Override
 	public CountResponse countAllByIsCompleted(String username, String isCompleted) {
 		boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
 		return new CountResponse(todoRepository.countByUsernameAndIsCompleted(username, _isCompleted));
@@ -141,5 +166,13 @@ public class TodoService {
 		}
 		
 		return _pageSize;
+	}
+
+	public void addObserver(TodoObserver observer) {
+		todoSubject.addObserver(observer);
+	}
+
+	public void removeObserver(TodoObserver observer) {
+		todoSubject.removeObserver(observer);
 	}
 }
