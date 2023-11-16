@@ -2,6 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import React from "react";
 import { CiStickyNote } from "react-icons/ci";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "../ui/menubar";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -21,18 +28,21 @@ function Navbar() {
       </button>
       <div className="mr-12 lg:mr-2">
         {localStorage.getItem("token") ? (
-          <Button
-            type="button"
-            onClick={() => handleLogout()}
-            className="lg:bg-white text-white lg:text-black hover:bg-slate-200"
-          >
-            Logout
-          </Button>
+          <Menubar>
+            <MenubarMenu>
+              <MenubarTrigger className="cursor-pointer ">
+                {localStorage.getItem("user")}
+              </MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem onClick={() => handleLogout()}>Logout</MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
         ) : (
           <Button
             type="button"
             onClick={() => navigate("/login")}
-            className="lg:bg-white text-white lg:text-black hover:bg-slate-200"
+            className="bg-white text-black hover:bg-slate-200"
           >
             Login
           </Button>
