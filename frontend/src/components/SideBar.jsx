@@ -4,7 +4,6 @@ import { slide as Menu } from "react-burger-menu";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import { useState, useEffect } from "react";
-// import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,

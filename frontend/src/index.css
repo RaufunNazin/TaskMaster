@@ -1,4 +1,21 @@
-@import url('./fonts/comic.css');
+@import url("./fonts/comic.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* YourComponent.css */
+.absolute {
+  position: absolute;
+}
+
+.transition-transform {
+  transition-property: transform;
+}
+
+.translate-x-0 {
+  transform: translateY(0);
+}
+
+.translate-x-full {
+  transform: translateY(100%);
+}

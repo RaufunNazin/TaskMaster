@@ -24,7 +24,7 @@ function Navbar() {
           <Button
             type="button"
             onClick={() => handleLogout()}
-            className="bg-white text-black hover:bg-slate-200"
+            className="lg:bg-white text-white lg:text-black hover:bg-slate-200"
           >
             Logout
           </Button>
@@ -32,7 +32,7 @@ function Navbar() {
           <Button
             type="button"
             onClick={() => navigate("/login")}
-            className="bg-white text-black hover:bg-slate-200"
+            className="lg:bg-white text-white lg:text-black hover:bg-slate-200"
           >
             Login
           </Button>

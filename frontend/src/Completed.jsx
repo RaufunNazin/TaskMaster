@@ -64,9 +64,9 @@ const Completed = () => {
     <div className="flex flex-col h-screen">
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={2000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
@@ -93,7 +93,7 @@ const Completed = () => {
                       className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
                     >
                       <div>
-                        <p className="text-sm lg:text-xl text-left whitespace-normal break-all overflow-hidden">
+                        <p className="text-lg lg:text-xl text-left whitespace-normal break-all overflow-hidden">
                           {item.title}
                         </p>
                         <div className="text-sm text-gray-500 flex items-center gap-x-1">
