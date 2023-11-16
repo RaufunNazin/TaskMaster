@@ -86,6 +86,8 @@ const Completed = () => {
             <div className="flex flex-col gap-y-2 p-4">
               {completed?.length > 0 ? (
                 completed?.map((item) => {
+                  const currentDate = new Date(item.targetDate);
+                  currentDate.setDate(currentDate.getDate() + 1);
                   return (
                     <button
                       type="button"
@@ -98,13 +100,10 @@ const Completed = () => {
                         </p>
                         <div className="text-sm text-gray-500 flex items-center gap-x-1">
                           <AiOutlineClockCircle />
-                          {item.targetDate && item.targetDate.slice(0, 10)}
+                          {currentDate.toISOString().slice(0, 10)}
                         </div>
                       </div>
                       <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
-                        <button>
-                          <RiInformationLine className="text-md lg:text-2xl hover:text-blue-600" />
-                        </button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <button type="button">

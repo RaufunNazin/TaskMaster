@@ -216,10 +216,7 @@ const Todo = () => {
                   <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
                     <Popover
                       open={calendarOpen}
-                      onOpenChange={() => {
-                        setCalendarOpen((prev) => !prev);
-                        setUpdateCalendarOpen(false);
-                      }}
+                      onOpenChange={() => setCalendarOpen(true)}
                     >
                       <PopoverTrigger asChild>
                         <Button
@@ -361,10 +358,7 @@ const Todo = () => {
                             <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
                               <Popover
                                 open={updateCalendarOpen}
-                                onOpenChange={() => {
-                                  setUpdateCalendarOpen((prev) => !prev);
-                                  setCalendarOpen(false);
-                                }}
+                                onOpenChange={() => setUpdateCalendarOpen(true)}
                               >
                                 <PopoverTrigger asChild>
                                   <Button
