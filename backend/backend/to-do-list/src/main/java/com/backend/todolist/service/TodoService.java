@@ -25,8 +25,6 @@ import com.backend.todolist.repository.TodoPagingRepository;
 @Service
 public class TodoService implements TodoServiceDecorator{
 	private final TodoSubject todoSubject = new TodoSubject();
-	private SimpMessagingTemplate messagingTemplate;
-
 
 	@Autowired
 	private TodoRepository todoRepository;
@@ -35,8 +33,8 @@ public class TodoService implements TodoServiceDecorator{
 	private TodoPagingRepository todoPagingRepository;
 
 	public TodoService() {
-//		TodoObserver todoObserver = new TodoNotificationService(messagingTemplate);
-//		addObserver(todoObserver); // Add the observer
+		TodoObserver todoObserver = new TodoNotificationService();
+		addObserver(todoObserver); // Add the observer
 	}
 
     @Override
