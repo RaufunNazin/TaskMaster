@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.backend.todolist.controller.CountResponse;
@@ -24,6 +25,8 @@ import com.backend.todolist.repository.TodoPagingRepository;
 @Service
 public class TodoService implements TodoServiceDecorator{
 	private final TodoSubject todoSubject = new TodoSubject();
+	private SimpMessagingTemplate messagingTemplate;
+
 
 	@Autowired
 	private TodoRepository todoRepository;
@@ -32,7 +35,7 @@ public class TodoService implements TodoServiceDecorator{
 	private TodoPagingRepository todoPagingRepository;
 
 	public TodoService() {
-		TodoObserver todoObserver = new TodoNotificationService();
+		TodoObserver todoObserver = new TodoNotificationService(messagingTemplate);
 		addObserver(todoObserver); // Add the observer
 	}
 
