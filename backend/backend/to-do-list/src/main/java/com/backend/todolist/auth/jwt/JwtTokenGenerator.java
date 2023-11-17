@@ -25,9 +25,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtTokenGenerator {
     private String secretKey = "thisissupersecretkey";
-    
-    private long validityInMilliseconds = 3600000; // 1h
-    
+
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
     
@@ -40,6 +38,8 @@ public class JwtTokenGenerator {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("roles", roles);
         Date now = new Date();
+        // 1h
+        long validityInMilliseconds = 86400000;
         Date validity = new Date(now.getTime() + validityInMilliseconds);
         return Jwts.builder()
             .setClaims(claims)

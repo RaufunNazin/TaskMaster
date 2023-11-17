@@ -9,6 +9,8 @@ public class TodoUpdateRequest {
 	@NotEmpty(message = "Title is required")
 	private String title;
 
+	private String description;
+
 	@NotNull(message = "Target date is required")
 	private Date targetDate;
 	
@@ -16,9 +18,10 @@ public class TodoUpdateRequest {
 		
 	}
 
-	public TodoUpdateRequest(String title, Date targetDate) {
+	public TodoUpdateRequest(String title, String description, Date targetDate) {
 		super();
 		this.title = title;
+		this.description = description;
 		this.targetDate = targetDate;
 	}
 
@@ -29,6 +32,15 @@ public class TodoUpdateRequest {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 
 	public Date getTargetDate() {
 		return targetDate;

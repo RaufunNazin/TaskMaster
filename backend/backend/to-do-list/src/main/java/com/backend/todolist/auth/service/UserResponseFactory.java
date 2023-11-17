@@ -35,6 +35,7 @@ public class UserResponseFactory {
 	public UserSignupResponse createSignUpResponse(UserSignupRequest userSignupRequest) {
 		try {
 			String username = userSignupRequest.getUsername();
+			String email = userSignupRequest.getEmail();
 	        String password = userSignupRequest.getPassword();
 	        
 	        User user =  userRepository.findByUsername(username);
@@ -42,12 +43,12 @@ public class UserResponseFactory {
 	        	throw new BadRequestException("Username already exists");
 	        }
 	        
-	        User _user = new User(username, passwordEncoder.encode(password));
+	        User _user = new User(username, email, passwordEncoder.encode(password));
 	        _user = userRepository.save(_user);
 	        
 	        String token = jwtTokenGenerator.createToken(_user.getUsername(), _user.getRoleAsList());
 	        
-			return new UserSignupResponse(username, token);
+			return new UserSignupResponse(username, email, token);
 		} catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password");
         }
@@ -56,10 +57,11 @@ public class UserResponseFactory {
 	public UserSigninResponse createSignInResponse(UserSigninRequest userSigninRequest) {
 		try {
 			String username = userSigninRequest.getUsername();
+			String email = userSigninRequest.getEmail();
 	        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, userSigninRequest.getPassword()));
 	        String token = jwtTokenGenerator.createToken(username, this.userRepository.findByUsername(username).getRoleAsList());
 	        
-			return new UserSigninResponse(username, token);
+			return new UserSigninResponse(username, email, token);
 		} catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password");
         }
