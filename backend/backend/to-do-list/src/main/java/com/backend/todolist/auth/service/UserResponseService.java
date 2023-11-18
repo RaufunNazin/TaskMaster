@@ -1,24 +1,27 @@
 package com.backend.todolist.auth.service;
 
+import com.backend.todolist.auth.controller.*;
+import com.backend.todolist.auth.jwt.JwtTokenGenerator;
+import com.backend.todolist.auth.model.PasswordResetToken;
+import com.backend.todolist.auth.model.User;
+import com.backend.todolist.auth.repository.PasswordResetTokenRepository;
+import com.backend.todolist.auth.repository.UserRepository;
+import com.backend.todolist.errorhandler.BadRequestException;
+import com.backend.todolist.errorhandler.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.mail.javamail.JavaMailSender;
 
-import com.backend.todolist.auth.controller.UserSigninRequest;
-import com.backend.todolist.auth.controller.UserSigninResponse;
-import com.backend.todolist.auth.controller.UserSignupRequest;
-import com.backend.todolist.auth.controller.UserSignupResponse;
-import com.backend.todolist.auth.jwt.JwtTokenGenerator;
-import com.backend.todolist.auth.model.User;
-import com.backend.todolist.auth.repository.UserRepository;
-import com.backend.todolist.errorhandler.BadRequestException;
+import java.util.UUID;
 
 @Service
-public class UserResponseFactory {
+public class UserResponseService {
 	@Autowired
     UserRepository userRepository;
 	
@@ -30,6 +33,11 @@ public class UserResponseFactory {
 
 	@Autowired
 	JwtTokenGenerator jwtTokenGenerator;
+
+	@Autowired
+	PasswordResetTokenRepository passwordResetTokenRepository;
+
+	private JavaMailSender emailSender;
 
 	
 	public UserSignupResponse createSignUpResponse(UserSignupRequest userSignupRequest) {
@@ -66,4 +74,31 @@ public class UserResponseFactory {
             throw new BadCredentialsException("Invalid username/password");
         }
 	}
+
+	public UserResetPasswordResponse createResetPasswordResponse(UserResetPasswordRequest userResetPasswordRequest){
+		try {
+			String email = userResetPasswordRequest.getEmail();
+			User user = userRepository.findByEmail(email);
+			if (user == null) {
+				throw new UserNotFoundException("User not found");
+			}
+
+            String token = UUID.randomUUID().toString();
+			PasswordResetToken passwordResetToken = new PasswordResetToken(user, token);
+			passwordResetTokenRepository.save(passwordResetToken);
+			sendResetTokenEmail(email, token);
+			return new UserResetPasswordResponse(email, token);
+		} catch (AuthenticationException e){
+			throw new RuntimeException("Failed to initiate password reset process");
+		}
+	}
+
+	private void sendResetTokenEmail(String recipientEmail, String token) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(recipientEmail);
+		message.setSubject("Password Reset Token");
+		message.setText("Your password reset token is: " + token);
+		emailSender.send(message);
+	}
+
 }

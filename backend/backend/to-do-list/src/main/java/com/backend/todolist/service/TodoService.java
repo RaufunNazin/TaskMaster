@@ -167,6 +167,8 @@ public class TodoService implements TodoServiceDecorator{
 		return _pageSize;
 	}
 
+
+
 	public void addObserver(TodoObserver observer) {
 		todoSubject.addObserver(observer);
 	}
