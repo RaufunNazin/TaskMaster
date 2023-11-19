@@ -11,9 +11,9 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findAllByUsername(String username);
-    Category findCategoryById(Long id);
-    Category deleteCategoryById(Long id);
-    Category findByUsernameAndId(String username, long id);
+    Category findCategoryByCategoryId(Long id);
+    Category deleteCategoryByCategoryId(Long id);
+    Category findByUsernameAndCategoryId(String username, long id);
 
 //    Category findByTitle(String categoryTitle);
 }

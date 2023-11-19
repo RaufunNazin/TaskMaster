@@ -17,18 +17,18 @@ public class TodoCreateRequest {
 	@NotNull(message = "Target date is required")
 	private Date targetDate;
 
-	private Set<Category> categories;
+	private Category category;
 	
 	protected TodoCreateRequest() {
 		
 	}
 
-	public TodoCreateRequest(String title, String description, Date targetDate, Set<Category> categories) {
+	public TodoCreateRequest(String title, String description, Date targetDate, Category category) {
 		super();
 		this.title = title;
 		this.description = description;
 		this.targetDate = targetDate;
-		this.categories = categories;
+		this.category = category;
 	}
 
 	public String getTitle() {
@@ -55,11 +55,11 @@ public class TodoCreateRequest {
 		this.targetDate = targetDate;
 	}
 
-	public Set<Category> getCategories() {
-		return categories;
+	public Category getCategory() {
+		return category;
 	}
 
-	public void setCategories(Set<Category> categories) {
-		this.categories = categories;
+	public void setCategories(Category category) {
+		this.category = category;
 	}
 }

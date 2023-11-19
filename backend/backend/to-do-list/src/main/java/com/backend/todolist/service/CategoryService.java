@@ -21,7 +21,7 @@ public class CategoryService {
     }
 
     public Category readById(long id, String username){
-        Category category = categoryRepository.findByUsernameAndId(username, id);
+        Category category = categoryRepository.findByUsernameAndCategoryId(username, id);
         if(category == null){
             throw new ResourceNotFoundException("Category not found");
         }
@@ -32,7 +32,7 @@ public class CategoryService {
     }
 
     public void deleteById(Long id, String username) {
-        Category category = categoryRepository.findByUsernameAndId(username, id);
+        Category category = categoryRepository.findByUsernameAndCategoryId(username, id);
         categoryRepository.deleteById(id);
     }
 

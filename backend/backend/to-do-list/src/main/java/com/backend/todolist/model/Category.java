@@ -2,20 +2,24 @@ package com.backend.todolist.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "categories")
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long categoryId;
 
     private String username;
 
     @NotEmpty(message = "Title is required")
     @Column(unique = true)
     private String title;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Todo> todos = new HashSet<>();
 
     public Category() {
 
@@ -27,11 +31,11 @@ public class Category {
     }
 
     public Long getId() {
-        return id;
+        return categoryId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getUsername() {
@@ -48,5 +52,13 @@ public class Category {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Set<Todo> getTodos() {
+        return todos;
+    }
+
+    public void setTodos(Set<Todo> todos) {
+        this.todos = todos;
     }
 }

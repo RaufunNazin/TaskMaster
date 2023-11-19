@@ -94,9 +94,9 @@ public class TodoController {
 		return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 	}
 
-//	@ResponseStatus(code = HttpStatus.OK)
-//	@RequestMapping(value = "/api/todo/{id}/addCategory", method = RequestMethod.PUT)
-//	public ResponseEntity<Todo> addCategoryToTodo(@PathVariable long id, @RequestParam Long categoryId, Principal principal) {
-//		return new ResponseEntity<>(todoService.addCategoryToTodo(id, categoryId, principal.getName()), HttpStatus.OK);
-//	}
+	@ResponseStatus(code = HttpStatus.OK)
+	@RequestMapping(value = "/api/todo/{id}/addCategory", method = RequestMethod.PUT)
+	public ResponseEntity<Todo> addCategoryToTodo(@PathVariable long id, @RequestParam Long categoryId, Principal principal) {
+		return new ResponseEntity<>(todoService.addCategoryToTodo(id, categoryId, principal.getName()), HttpStatus.OK);
+	}
 }

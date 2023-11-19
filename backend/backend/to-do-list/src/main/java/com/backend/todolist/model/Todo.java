@@ -27,13 +27,9 @@ public class Todo {
 
 
 
-//	@ManyToMany
-//	@JoinTable(
-//			name = "todo_category",
-//			joinColumns = @JoinColumn(name = "id"),
-//			inverseJoinColumns = @JoinColumn(name = "id")
-//	)
-//	private Set<Category> categories = new HashSet<>();
+	@ManyToOne
+	@JoinColumn(name = "category_id")
+	private Category category;
 	
 	private boolean isCompleted;
 	
@@ -41,13 +37,13 @@ public class Todo {
 		
 	}
 	
-	public Todo(String title, String description, Date targetDate, String username) {
+	public Todo(String title, String description, Date targetDate, String username, Category category) {
 		super();
 		this.title = title;
 		this.description = description;
 		this.targetDate = targetDate;
 		this.username = username;
-//		this.categories = categories;
+		this.category = category;
 		this.isCompleted = false;
 	}
 	
@@ -91,13 +87,13 @@ public class Todo {
 		this.targetDate = targetDate;
 	}
 
-//	public Set<Category> getCategories() {
-//		return categories;
-//	}
-//
-//	public void setCategories(Set<Category> categories) {
-//		this.categories = categories;
-//	}
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
 
 	public boolean getIsCompleted() {
 		return isCompleted;
