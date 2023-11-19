@@ -6,6 +6,9 @@ import com.backend.todolist.errorhandler.ResourceNotFoundException;
 import com.backend.todolist.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -45,20 +48,20 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
     }
 
-//    @PostConstruct
-//    public void initializeDefaultCategories() {
-//        List<String> defaultCategoryTitles = Arrays.asList("Personal", "Work", "Important");
-//
-//        for (String categoryTitle : defaultCategoryTitles) {
-//            Category category = categoryRepository.findByTitle(categoryTitle);
-//            if (category == null) {
-//                category = new Category();
-//                category.setTitle(categoryTitle);
-//                // Set other properties if needed
-//                categoryRepository.save(category);
-//            }
-//        }
-//    }
+    @PostConstruct
+    public void initializeDefaultCategories() {
+        List<String> defaultCategoryTitles = Arrays.asList("Personal", "Work", "Important");
+
+        for (String categoryTitle : defaultCategoryTitles) {
+            Category category = categoryRepository.findByTitle(categoryTitle);
+            if (category == null) {
+                category = new Category();
+                category.setTitle(categoryTitle);
+                // Set other properties if needed
+                categoryRepository.save(category);
+            }
+        }
+    }
 
     // You can add more methods like updateCategory, etc. as per your requirements
 }
