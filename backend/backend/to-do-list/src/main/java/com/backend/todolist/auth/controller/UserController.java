@@ -66,22 +66,7 @@ public class UserController {
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/auth/reset-password", method = RequestMethod.POST)
 	public ResponseEntity<UserResetPasswordResponse> resetPassword(@Valid @RequestBody UserResetPasswordRequest resetPasswordRequest) {
-		// Logic to handle forgot password functionality
-		// Generate a reset token and email the user with the reset link
-		// Process the reset token and update the user's password
-
 		return new ResponseEntity<>(userResponseService.createResetPasswordResponse(resetPasswordRequest), HttpStatus.OK);
 	}
-
-//	@RequestMapping(value = "/reset-pass-demo/forgotMyPassword", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON, method = RequestMethod.POST)
-//	public Response sendConformationMailTo(@RequestBody String sendConformationMailTo, @Context HttpServletResponse res, @Context HttpServletRequest req) {
-//		if (!ResetPasswordDemoUtil.emailValidator(sendConformationMailTo)) {
-//			return Response.status(200).entity(new Message("*Plaese enter a valid email address")).build();
-//		}
-//		if (emailStub.sendResetPasswordMail(sendConformationMailTo, req)) {
-//			return Response.status(200).entity(new Message("A confirmation link has been sent to your email address")).build();
-//		}
-//		return Response.status(200).entity(new Message("*This email is not registered in our website")).build();
-//	}
 
 }
