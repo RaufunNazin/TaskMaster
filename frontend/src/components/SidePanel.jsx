@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CgDetailsMore } from "react-icons/cg";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { AiFillStar } from "react-icons/ai";
@@ -87,6 +87,10 @@ const SidePanel = () => {
         });
     } else toast.error("Please enter a title for the category.");
   };
+
+  useEffect(() => {
+    getCategory();
+  }, []);
 
   return (
     <div className="hidden lg:block">

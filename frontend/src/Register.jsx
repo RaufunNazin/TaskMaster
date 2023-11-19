@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 function Register() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [cpassword, setCPassword] = useState("");
@@ -20,7 +20,7 @@ function Register() {
     } else {
       api
         .post("/auth/signup", {
-          // name: name,
+          email: email,
           username: username,
           password: password,
         })
@@ -62,17 +62,14 @@ function Register() {
             Create your account
           </div>
           <div className="flex flex-col gap-y-6 px-8 lg:px-12">
-            {/* <div className="grid grid-cols-4 items-center">
-              <Label htmlFor="name" className="text-left">
-                Name
-              </Label>
+            <div className="">
               <Input
-                onChange={(e) => setName(e.target.value)}
-                id="name"
-                type="text"
-                className="col-span-3"
+                onChange={(e) => setEmail(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="Email"
               />
-            </div> */}
+            </div>
             <div className="">
               <Input
                 onChange={(e) => setUsername(e.target.value)}

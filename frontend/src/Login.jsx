@@ -16,7 +16,6 @@ function Login() {
   const login = () => {
     api
       .post("/auth/signin", {
-        email: "abc@gmail.com",
         username: username,
         password: password,
       })

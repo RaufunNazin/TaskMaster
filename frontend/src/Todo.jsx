@@ -257,6 +257,8 @@ const Todo = () => {
               <div className="flex flex-col gap-y-2 p-4">
                 {pending.length > 0 ? (
                   pending.map((item) => {
+                    const currentDate = new Date(item.targetDate);
+                    currentDate.setDate(currentDate.getDate() + 1);
                     return (
                       <div>
                         <button
@@ -272,7 +274,7 @@ const Todo = () => {
                             </p>
                             <div className="text-sm text-gray-500 flex items-center gap-x-1">
                               <AiOutlineClockCircle />
-                              {item.targetDate && item.targetDate.slice(0, 10)}
+                              {currentDate.toISOString().slice(0, 10)}
                             </div>
                           </div>
                           <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
