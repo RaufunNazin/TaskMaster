@@ -97,8 +97,8 @@ public class UserResponseService {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(recipientEmail);
 		message.setSubject("Password Reset Token");
-		message.setText("Your password reset token is: " + token);
-		emailSender.send(message);
+//		message.setText("Your password reset token is: " + token);
+//		emailSender.send(message);
 	}
 
 }

@@ -1,7 +1,10 @@
 package com.backend.todolist.service;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.backend.todolist.auth.repository.CategoryRepository;
+import com.backend.todolist.model.Category;
 import com.backend.todolist.observer.TodoNotificationService;
 import com.backend.todolist.observer.TodoObserver;
 import com.backend.todolist.observer.TodoSubject;
@@ -22,12 +25,17 @@ import com.backend.todolist.model.Todo;
 import com.backend.todolist.repository.TodoRepository;
 import com.backend.todolist.repository.TodoPagingRepository;
 
+import javax.annotation.PostConstruct;
+
 @Service
 public class TodoService implements TodoServiceDecorator{
 	private final TodoSubject todoSubject = new TodoSubject();
 
 	@Autowired
 	private TodoRepository todoRepository;
+
+	@Autowired
+	private CategoryRepository categoryRepository;
 	
 	@Autowired
 	private TodoPagingRepository todoPagingRepository;
@@ -167,7 +175,16 @@ public class TodoService implements TodoServiceDecorator{
 		return _pageSize;
 	}
 
-
+//	public Todo addCategoryToTodo(Long todoId, Long categoryId, String username) {
+//		Todo todo = todoRepository.findById(todoId)
+//				.orElseThrow(() -> new ResourceNotFoundException("Todo not found"));
+//
+//		Category category = categoryRepository.findById(categoryId)
+//				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+//
+//		todo.getCategories().add(category);
+//		return todoRepository.save(todo);
+//	}
 
 	public void addObserver(TodoObserver observer) {
 		todoSubject.addObserver(observer);

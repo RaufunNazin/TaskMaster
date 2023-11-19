@@ -1,10 +1,10 @@
 package com.backend.todolist.model;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -24,6 +24,16 @@ public class Todo {
 	private Date targetDate;
 	
 	private String username;
+
+
+
+//	@ManyToMany
+//	@JoinTable(
+//			name = "todo_category",
+//			joinColumns = @JoinColumn(name = "id"),
+//			inverseJoinColumns = @JoinColumn(name = "id")
+//	)
+//	private Set<Category> categories = new HashSet<>();
 	
 	private boolean isCompleted;
 	
@@ -37,6 +47,7 @@ public class Todo {
 		this.description = description;
 		this.targetDate = targetDate;
 		this.username = username;
+//		this.categories = categories;
 		this.isCompleted = false;
 	}
 	
@@ -79,6 +90,14 @@ public class Todo {
 	public void setTargetDate(Date targetDate) {
 		this.targetDate = targetDate;
 	}
+
+//	public Set<Category> getCategories() {
+//		return categories;
+//	}
+//
+//	public void setCategories(Set<Category> categories) {
+//		this.categories = categories;
+//	}
 
 	public boolean getIsCompleted() {
 		return isCompleted;

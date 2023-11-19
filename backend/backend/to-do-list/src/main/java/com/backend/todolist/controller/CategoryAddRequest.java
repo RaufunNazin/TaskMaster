@@ -2,7 +2,7 @@ package com.backend.todolist.controller;
 
 import javax.validation.constraints.NotEmpty;
 
-public class CategoryRequest {
+public class CategoryAddRequest {
     public String getTitle() {
         return title;
     }
@@ -14,11 +14,11 @@ public class CategoryRequest {
     @NotEmpty(message = "Title is required")
     private String title;
 
-    protected CategoryRequest(){
+    protected CategoryAddRequest(){
 
     }
 
-    public CategoryRequest(String title){
+    public CategoryAddRequest(String title){
         super();
         this.title = title;
     }

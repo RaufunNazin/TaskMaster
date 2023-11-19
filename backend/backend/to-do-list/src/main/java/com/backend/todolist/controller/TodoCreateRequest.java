@@ -1,6 +1,9 @@
 package com.backend.todolist.controller;
 
+import com.backend.todolist.model.Category;
+
 import java.util.Date;
+import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -13,16 +16,19 @@ public class TodoCreateRequest {
 
 	@NotNull(message = "Target date is required")
 	private Date targetDate;
+
+	private Set<Category> categories;
 	
 	protected TodoCreateRequest() {
 		
 	}
 
-	public TodoCreateRequest(String title, String description, Date targetDate) {
+	public TodoCreateRequest(String title, String description, Date targetDate, Set<Category> categories) {
 		super();
 		this.title = title;
 		this.description = description;
 		this.targetDate = targetDate;
+		this.categories = categories;
 	}
 
 	public String getTitle() {
@@ -47,5 +53,13 @@ public class TodoCreateRequest {
 
 	public void setTargetDate(Date targetDate) {
 		this.targetDate = targetDate;
+	}
+
+	public Set<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Set<Category> categories) {
+		this.categories = categories;
 	}
 }
