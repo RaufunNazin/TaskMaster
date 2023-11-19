@@ -8,7 +8,7 @@ import {
   AiOutlineStar,
   AiTwotoneCalendar,
 } from "react-icons/ai";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { RiDeleteBin6Line, RiInformationLine } from "react-icons/ri";
 import { BsCheck2Circle, BsCheck2 } from "react-icons/bs";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ToastContainer, toast } from "react-toastify";
@@ -176,7 +176,7 @@ const Todo = () => {
       navigate("/login", { state: "redirected" });
     }
     if (location.state === "login") {
-      toast.success(`Welcome, ${localStorage.getItem("user")}!`);
+      toast.success("Logged in successfully");
     }
   }, []);
 
@@ -214,10 +214,7 @@ const Todo = () => {
                     onChange={(e) => setTitle(e.target.value)}
                   />
                   <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
-                    <Popover
-                      open={calendarOpen}
-                      onOpenChange={() => setCalendarOpen(true)}
-                    >
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                       <PopoverTrigger asChild>
                         <Button
                           variant={"outline"}
@@ -260,8 +257,6 @@ const Todo = () => {
               <div className="flex flex-col gap-y-2 p-4">
                 {pending.length > 0 ? (
                   pending.map((item) => {
-                    const currentDate = new Date(item.targetDate);
-                    currentDate.setDate(currentDate.getDate() + 1);
                     return (
                       <div>
                         <button
@@ -277,7 +272,7 @@ const Todo = () => {
                             </p>
                             <div className="text-sm text-gray-500 flex items-center gap-x-1">
                               <AiOutlineClockCircle />
-                              {currentDate.toISOString().slice(0, 10)}
+                              {item.targetDate && item.targetDate.slice(0, 10)}
                             </div>
                           </div>
                           <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
@@ -325,10 +320,11 @@ const Todo = () => {
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    Are you sure?
+                                    Task Completed?
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will mark your task as completed
+                                    This action cannot be undone. This will mark
+                                    your task as completed
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -336,7 +332,7 @@ const Todo = () => {
                                   <AlertDialogAction
                                     onClick={() => completeTask(item.id)}
                                   >
-                                    Complete
+                                    Done
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>

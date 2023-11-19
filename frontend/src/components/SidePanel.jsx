@@ -20,12 +20,15 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api";
+import { CloudCog } from "lucide-react";
 
 const SidePanel = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [userCategory, setUserCategory] = useState([]);
   const [categories, setCategories] = useState([
     {
       title: "All Tasks",
@@ -49,16 +52,40 @@ const SidePanel = () => {
     },
   ]);
 
-  const createCategory = () => {
-    // You can provide your own icon for the new category.
-    const newCategory = {
-      title: categoryTitle,
-      icon: <GiPin className="text-red-700" />,
-    };
+  const getCategory = () => {
+    api
+      .get("/category", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => setUserCategory([...res.data]))
+      .catch((err) => console.log(err));
+  };
 
+  const createCategory = () => {
     // Add the new category to the state.
-    if (categoryTitle !== "") setCategories([...categories, newCategory]);
-    else toast.error("Please enter a title for the category.");
+    if (categoryTitle) {
+      api
+        .post(
+          "/category",
+          {
+            title: categoryTitle,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          toast.success("Category created");
+          getCategory();
+        })
+        .catch((err) => {
+          toast.error(err.response.data.message);
+        });
+    } else toast.error("Please enter a title for the category.");
   };
 
   return (
@@ -94,6 +121,21 @@ const SidePanel = () => {
               return (
                 <div className="w-full" onClick={() => navigate(category.path)}>
                   <MenuItem key={i} icon={category.icon}>
+                    <div className="font-medium text-gray-700">
+                      {category.title}
+                    </div>
+                  </MenuItem>
+                </div>
+              );
+            })}
+          {userCategory.length > 0 &&
+            userCategory.map((category, i) => {
+              return (
+                <div className="w-full">
+                  <MenuItem
+                    key={category.id}
+                    icon={<GiPin className="text-red-700" />}
+                  >
                     <div className="font-medium text-gray-700">
                       {category.title}
                     </div>
