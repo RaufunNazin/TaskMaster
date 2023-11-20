@@ -1,5 +1,10 @@
 package com.backend.todolist.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,10 +30,9 @@ public class Todo {
 	
 	private String username;
 
-
-
 	@ManyToOne
 	@JoinColumn(name = "category_id")
+	@JsonIgnoreProperties("todos")
 	private Category category;
 	
 	private boolean isCompleted;

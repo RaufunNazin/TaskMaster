@@ -44,7 +44,7 @@ public class TodoService {
 	public Todo create(TodoCreateRequest todoCreateRequest, String username) {
 		Todo todo = new Todo(todoCreateRequest.getTitle(), todoCreateRequest.getDescription(), todoCreateRequest.getTargetDate(), username,todoCreateRequest.getCategory());
 		todoSubject.createTodo(todoCreateRequest.getTitle());
-		todo.setCategory(todoCreateRequest.getCategory());
+//		todo.setCategory(todoCreateRequest.getCategory());
 		return todoRepository.save(todo);
 	}
 

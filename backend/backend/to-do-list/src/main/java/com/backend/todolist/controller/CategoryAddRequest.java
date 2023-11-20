@@ -1,17 +1,12 @@
 package com.backend.todolist.controller;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
 
 public class CategoryAddRequest {
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     @NotEmpty(message = "Title is required")
+    @Column(unique = true)
     private String title;
 
     protected CategoryAddRequest(){
@@ -22,5 +17,13 @@ public class CategoryAddRequest {
         super();
         this.title = title;
     }
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
 
 }

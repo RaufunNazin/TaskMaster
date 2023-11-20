@@ -1,15 +1,18 @@
 package com.backend.todolist.auth.controller;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 public class UserSignupRequest {
 	@NotEmpty(message = "Username is required")
+	@Column(unique = true)
     private String username;
 
 	@NotEmpty(message = "Email is required")
 	@Email(message = "Please provide a valid email")
+	@Column(unique = true)
 	private String email;
     
     @NotEmpty(message = "Password is required")

@@ -4,10 +4,12 @@ import com.backend.todolist.auth.controller.*;
 import com.backend.todolist.auth.jwt.JwtTokenGenerator;
 import com.backend.todolist.auth.model.PasswordResetToken;
 import com.backend.todolist.auth.model.User;
+import com.backend.todolist.auth.repository.CategoryRepository;
 import com.backend.todolist.auth.repository.PasswordResetTokenRepository;
 import com.backend.todolist.auth.repository.UserRepository;
 import com.backend.todolist.errorhandler.BadRequestException;
 import com.backend.todolist.errorhandler.UserNotFoundException;
+import com.backend.todolist.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,14 +18,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.javamail.JavaMailSender;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
 public class UserResponseService {
 	@Autowired
     UserRepository userRepository;
+
+	@Autowired
+	CategoryRepository categoryRepository;
 	
 	@Autowired
 	AuthenticationManager authenticationManager;
@@ -36,8 +41,6 @@ public class UserResponseService {
 
 	@Autowired
 	PasswordResetTokenRepository passwordResetTokenRepository;
-
-	private JavaMailSender emailSender;
 
 	
 	public UserSignupResponse createSignUpResponse(UserSignupRequest userSignupRequest) {
@@ -53,6 +56,20 @@ public class UserResponseService {
 	        
 	        User _user = new User(username, email, passwordEncoder.encode(password));
 	        _user = userRepository.save(_user);
+			// Create default categories for the user
+			Category important = new Category();
+			important.setTitle("Important");
+			important.setUsername(username);
+
+			Category personal = new Category();
+			personal.setTitle("Personal");
+			personal.setUsername(username);
+
+			Category work = new Category();
+			work.setTitle("Work");
+			work.setUsername(username);
+
+			categoryRepository.saveAll(Arrays.asList(important, personal, work));
 	        
 	        String token = jwtTokenGenerator.createToken(_user.getUsername(), _user.getRoleAsList());
 	        

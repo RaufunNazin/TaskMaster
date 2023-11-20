@@ -1,12 +1,11 @@
 package com.backend.todolist.auth.model;
 
+import com.backend.todolist.model.Category;
+
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
@@ -29,7 +28,7 @@ public class User {
     private String password;
 
     private String role;
-    
+
     protected User() {
 		
 	}
