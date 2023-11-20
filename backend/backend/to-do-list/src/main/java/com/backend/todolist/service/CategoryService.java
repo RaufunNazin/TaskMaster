@@ -39,15 +39,6 @@ public class CategoryService {
         categoryRepository.deleteById(id);
     }
 
-    public List<Category> getAllCategoriesByUsername(String username) {
-        return categoryRepository.findAllByUsername(username);
-    }
-
-    public Category getCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-    }
-
     @PostConstruct
     public void initializeDefaultCategories() {
         List<String> defaultCategoryTitles = Arrays.asList("Personal", "Work", "Important");

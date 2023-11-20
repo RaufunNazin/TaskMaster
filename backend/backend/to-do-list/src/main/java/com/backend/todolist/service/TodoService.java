@@ -181,6 +181,11 @@ public class TodoService implements TodoServiceDecorator{
 		return todoRepository.save(todo);
 	}
 
+	public List<Todo> readByCategoryId(Long categoryId, String username){
+		List<Todo> todos = todoRepository.findAllByCategory(categoryRepository.findById(categoryId));
+		return todos;
+	}
+
 	public void addObserver(TodoObserver observer) {
 		todoSubject.addObserver(observer);
 	}

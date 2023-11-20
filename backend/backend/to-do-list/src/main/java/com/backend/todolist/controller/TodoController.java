@@ -99,4 +99,10 @@ public class TodoController {
 	public ResponseEntity<Todo> addCategoryToTodo(@PathVariable long id, @RequestParam Long categoryId, Principal principal) {
 		return new ResponseEntity<>(todoService.addCategoryToTodo(id, categoryId, principal.getName()), HttpStatus.OK);
 	}
+
+	@ResponseStatus(code = HttpStatus.OK)
+	@RequestMapping(value = "/api/todo/{categoryId}", method = RequestMethod.GET)
+	public ResponseEntity<List<Todo>> readCategoryById(@PathVariable long categoryId, Principal principal) {
+		return new ResponseEntity<>(todoService.readByCategoryId(categoryId, principal.getName()), HttpStatus.OK);
+	}
 }

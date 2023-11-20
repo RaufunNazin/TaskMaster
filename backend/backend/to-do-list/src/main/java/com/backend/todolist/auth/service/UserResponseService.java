@@ -65,11 +65,10 @@ public class UserResponseService {
 	public UserSigninResponse createSignInResponse(UserSigninRequest userSigninRequest) {
 		try {
 			String username = userSigninRequest.getUsername();
-			String email = userSigninRequest.getEmail();
 	        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, userSigninRequest.getPassword()));
 	        String token = jwtTokenGenerator.createToken(username, this.userRepository.findByUsername(username).getRoleAsList());
 	        
-			return new UserSigninResponse(username, email, token);
+			return new UserSigninResponse(username, token);
 		} catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password");
         }
