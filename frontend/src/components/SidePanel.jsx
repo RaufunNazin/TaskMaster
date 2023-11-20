@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CgDetailsMore } from "react-icons/cg";
-import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
+import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { AiFillStar } from "react-icons/ai";
 import { BsFillPersonFill, BsClipboardCheck } from "react-icons/bs";
 import { BsCheck2Circle } from "react-icons/bs";
@@ -15,13 +15,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
-import { CloudCog } from "lucide-react";
+import { Trash } from "lucide-react";
 
 const SidePanel = () => {
   const navigate = useNavigate();
@@ -29,6 +40,7 @@ const SidePanel = () => {
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [userCategory, setUserCategory] = useState([]);
+  const [hover, setHover] = useState(false);
   const [categories, setCategories] = useState([
     {
       title: "All Tasks",
@@ -88,6 +100,22 @@ const SidePanel = () => {
     } else toast.error("Please enter a title for the category.");
   };
 
+  const deleteCategory = (id) => {
+    api
+      .delete(`/category/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        toast.success("Category deleted");
+        getCategory();
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
   useEffect(() => {
     getCategory();
   }, []);
@@ -133,15 +161,49 @@ const SidePanel = () => {
               );
             })}
           {userCategory.length > 0 &&
-            userCategory.map((category, i) => {
+            userCategory.map((category) => {
               return (
-                <div className="w-full">
+                <div
+                  className="w-full"
+                  onMouseEnter={() => setHover(true)}
+                  onMouseLeave={() => setHover(false)}
+                >
                   <MenuItem
                     key={category.id}
                     icon={<GiPin className="text-red-700" />}
                   >
-                    <div className="font-medium text-gray-700">
-                      {category.title}
+                    <div className="flex justify-between items-center">
+                      <div className="font-medium text-gray-700">
+                        {category.title}
+                      </div>
+                      {hover && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button type="button">
+                              <Trash className="w-3 h-3 hover:text-red-800" />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete your category
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteCategory(category.id)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
                     </div>
                   </MenuItem>
                 </div>
