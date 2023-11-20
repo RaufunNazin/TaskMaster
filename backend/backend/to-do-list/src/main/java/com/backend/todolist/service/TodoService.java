@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TodoService implements TodoServiceDecorator{
+public class TodoService {
 	private final TodoSubject todoSubject = new TodoSubject();
 
 	@Autowired
@@ -40,28 +40,25 @@ public class TodoService implements TodoServiceDecorator{
 		addObserver(todoObserver); // Add the observer
 	}
 
-    @Override
+
 	public Todo create(TodoCreateRequest todoCreateRequest, String username) {
-		Todo todo = new Todo(todoCreateRequest.getTitle(), todoCreateRequest.getDescription(), todoCreateRequest.getTargetDate(), username,todoCreateRequest.getCategory());
+		Todo todo = new com.backend.todolist.model.Todo(todoCreateRequest.getTitle(), todoCreateRequest.getDescription(), todoCreateRequest.getTargetDate(), username,todoCreateRequest.getCategory());
 		todoSubject.createTodo(todoCreateRequest.getTitle());
 		return todoRepository.save(todo);
 	}
 
-    @Override
 	public Todo readById(long id, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
-			throw new ResourceNotFoundException("Todo not found");
+			throw new ResourceNotFoundException("TodoService not found");
 		}
 		return todo;
 	}
 
-    @Override
 	public List<Todo> readAll(String username) {
 		return todoRepository.findAllByUsername(username);
 	}
 
-    @Override
 	public List<Todo> readAllPageable(String username, String pageNumber, String pageSize) {
 		int _pageNumber = pageNumberStringToInteger(pageNumber);
 		int _pageSize = pageSizeStringToInteger(pageSize);
@@ -70,13 +67,11 @@ public class TodoService implements TodoServiceDecorator{
 		return todoPagingRepository.findAllByUsername(username, pageable);
 	}
 
-    @Override
 	public List<Todo> readAllByIsCompleted(String username, String isCompleted) {
 		boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
 		return todoRepository.findAllByUsernameAndIsCompleted(username, _isCompleted);
 	}
 
-    @Override
 	public List<Todo> readAllByIsCompletedPageable(String username, String isCompleted, String pageNumber, String pageSize) {
 		boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
 		int _pageNumber = pageNumberStringToInteger(pageNumber);
@@ -86,20 +81,18 @@ public class TodoService implements TodoServiceDecorator{
 		return todoPagingRepository.findAllByUsernameAndIsCompleted(username, _isCompleted, pageable);
 	}
 
-    @Override
 	public void deleteById(long id, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
-			throw new ResourceNotFoundException("Todo not found");
+			throw new ResourceNotFoundException("TodoService not found");
 		}
 		todoRepository.deleteById(id);
 	}
 
-    @Override
 	public Todo updateById(long id, TodoUpdateRequest todoUpdateRequest, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
-			throw new ResourceNotFoundException("Todo not found");
+			throw new ResourceNotFoundException("TodoService not found");
 		}
 		
 		todo.setTitle(todoUpdateRequest.getTitle());
@@ -108,23 +101,20 @@ public class TodoService implements TodoServiceDecorator{
 		return todoRepository.save(todo);
 	}
 
-    @Override
 	public Todo markCompleteById(long id, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
-			throw new ResourceNotFoundException("Todo not found");
+			throw new ResourceNotFoundException("TodoService not found");
 		}
 		
 		todo.setIsCompleted(!todo.getIsCompleted());
 		return todoRepository.save(todo);
 	}
 
-    @Override
 	public CountResponse countAll(String username) {
 		return new CountResponse(todoRepository.countByUsername(username));
 	}
 
-    @Override
 	public CountResponse countAllByIsCompleted(String username, String isCompleted) {
 		boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
 		return new CountResponse(todoRepository.countByUsernameAndIsCompleted(username, _isCompleted));
@@ -170,19 +160,10 @@ public class TodoService implements TodoServiceDecorator{
 		return _pageSize;
 	}
 
-	public Todo addCategoryToTodo(Long todoId, Long categoryId, String username) {
-		Todo todo = todoRepository.findById(todoId)
-				.orElseThrow(() -> new ResourceNotFoundException("Todo not found"));
-
+	public List<Todo> readByCategoryId(Long categoryId, String username){
 		Category category = categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-
-		todo.setCategory(category);
-		return todoRepository.save(todo);
-	}
-
-	public List<Todo> readByCategoryId(Long categoryId, String username){
-		List<Todo> todos = todoRepository.findAllByCategory(categoryRepository.findById(categoryId));
+		List<Todo> todos = todoRepository.findAllByCategoryAndUsername(category, username);
 		return todos;
 	}
 

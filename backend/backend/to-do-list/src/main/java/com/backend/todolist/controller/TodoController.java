@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.backend.todolist.decorator.CategoryTodoDecorator;
+import com.backend.todolist.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.todolist.errorhandler.CustomException;
-import com.backend.todolist.model.Todo;
-import com.backend.todolist.service.TodoService;
 
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -35,16 +35,19 @@ import io.swagger.annotations.ApiResponses;
 public class TodoController {
 	@Autowired
 	private TodoService todoService;
+
+	@Autowired
+	private CategoryTodoDecorator categoryTodoDecorator;
 	
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@RequestMapping(value = "/api/todo", method = RequestMethod.POST)
-	public ResponseEntity<Todo> create(@Valid @RequestBody TodoCreateRequest todoCreateRequest, Principal principal) {
+	public ResponseEntity<com.backend.todolist.model.Todo> create(@Valid @RequestBody TodoCreateRequest todoCreateRequest, Principal principal) {
 		return new ResponseEntity<>(todoService.create(todoCreateRequest, principal.getName()), HttpStatus.CREATED);
 	}
 	
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/todo", method = RequestMethod.GET)
-	public ResponseEntity<List<Todo>> readAll(Principal principal, @RequestParam(required = false) String isCompleted){
+	public ResponseEntity<List<com.backend.todolist.model.Todo>> readAll(Principal principal, @RequestParam(required = false) String isCompleted){
 		if(isCompleted != null) {
 			return new ResponseEntity<>(todoService.readAllByIsCompleted(principal.getName(), isCompleted), HttpStatus.OK);
 		}
@@ -62,7 +65,7 @@ public class TodoController {
 	
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/todo/{pageNumber}/{pageSize}", method = RequestMethod.GET)
-	public ResponseEntity<List<Todo>> readAllPageable(Principal principal, @PathVariable String pageNumber, @PathVariable String pageSize, @RequestParam(required = false) String isCompleted){
+	public ResponseEntity<List<com.backend.todolist.model.Todo>> readAllPageable(Principal principal, @PathVariable String pageNumber, @PathVariable String pageSize, @RequestParam(required = false) String isCompleted){
 		if(isCompleted != null) {
 			return new ResponseEntity<>(todoService.readAllByIsCompletedPageable(principal.getName(), isCompleted, pageNumber, pageSize), HttpStatus.OK);
 		}
@@ -71,19 +74,19 @@ public class TodoController {
 	
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/todo/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Todo> read(@PathVariable long id, Principal principal) {
+	public ResponseEntity<com.backend.todolist.model.Todo> read(@PathVariable long id, Principal principal) {
 		return new ResponseEntity<>(todoService.readById(id, principal.getName()), HttpStatus.OK);
 	}
 	
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/todo/{id}/markcomplete", method = RequestMethod.PUT)
-	public ResponseEntity<Todo> markComplete(@PathVariable long id, Principal principal) {
+	public ResponseEntity<com.backend.todolist.model.Todo> markComplete(@PathVariable long id, Principal principal) {
 		return new ResponseEntity<>(todoService.markCompleteById(id, principal.getName()), HttpStatus.OK);
 	}
 	
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/todo/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Todo> update(@PathVariable long id, @Valid @RequestBody TodoUpdateRequest todoUpdateRequest, Principal principal) {
+	public ResponseEntity<com.backend.todolist.model.Todo> update(@PathVariable long id, @Valid @RequestBody TodoUpdateRequest todoUpdateRequest, Principal principal) {
 		return new ResponseEntity<>(todoService.updateById(id, todoUpdateRequest, principal.getName()), HttpStatus.OK);
 	}
 	
@@ -96,13 +99,13 @@ public class TodoController {
 
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/todo/{id}/addCategory", method = RequestMethod.PUT)
-	public ResponseEntity<Todo> addCategoryToTodo(@PathVariable long id, @RequestParam Long categoryId, Principal principal) {
-		return new ResponseEntity<>(todoService.addCategoryToTodo(id, categoryId, principal.getName()), HttpStatus.OK);
+	public ResponseEntity<com.backend.todolist.model.Todo> addCategoryToTodo(@PathVariable long id, @RequestParam Long categoryId, Principal principal) {
+		return new ResponseEntity<>(categoryTodoDecorator.addCategoryToTodo(id, categoryId, principal.getName()), HttpStatus.OK);
 	}
 
 	@ResponseStatus(code = HttpStatus.OK)
-	@RequestMapping(value = "/api/todo/{categoryId}", method = RequestMethod.GET)
-	public ResponseEntity<List<Todo>> readCategoryById(@PathVariable long categoryId, Principal principal) {
+	@RequestMapping(value = "/api/todo/category/{categoryId}", method = RequestMethod.GET)
+	public ResponseEntity<List<com.backend.todolist.model.Todo>> readAllByCategoryId(@PathVariable long categoryId, Principal principal) {
 		return new ResponseEntity<>(todoService.readByCategoryId(categoryId, principal.getName()), HttpStatus.OK);
 	}
 }

@@ -105,7 +105,7 @@ public class Todo {
 
 	@Override
 	public String toString() {
-		return "Todo [id=" + id + ", title=" + title + ", targetDate=" + targetDate + ", username=" + username
+		return "TodoService [id=" + id + ", title=" + title + ", targetDate=" + targetDate + ", username=" + username
 				+ ", isCompleted=" + isCompleted + "]";
 	}
 	
