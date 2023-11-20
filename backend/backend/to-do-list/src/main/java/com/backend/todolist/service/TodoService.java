@@ -107,7 +107,7 @@ public class TodoService {
 	public Todo updateById(long id, TodoUpdateRequest todoUpdateRequest, String username) {
 		Todo todo = todoRepository.findByUsernameAndId(username, id);
 		if(todo == null) {
-			throw new ResourceNotFoundException("TodoService not found");
+			throw new ResourceNotFoundException("Todo not found");
 		}
 		
 		todo.setTitle(todoUpdateRequest.getTitle());
