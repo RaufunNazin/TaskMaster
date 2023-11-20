@@ -16,7 +16,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*", allowCredentials = "true")
+@CrossOrigin(origins = "*", allowCredentials = "true", allowedHeaders = "*")
 @ApiResponses(value = {
         @ApiResponse(code=400, message = "Bad Request", response = CustomException.class),
         @ApiResponse(code=401, message = "Unauthorized", response = CustomException.class),

@@ -42,7 +42,7 @@ public class TodoService {
 
 
 	public Todo create(TodoCreateRequest todoCreateRequest, String username) {
-		Todo todo = new com.backend.todolist.model.Todo(todoCreateRequest.getTitle(), todoCreateRequest.getDescription(), todoCreateRequest.getTargetDate(), username,todoCreateRequest.getCategory());
+		Todo todo = new Todo(todoCreateRequest.getTitle(), todoCreateRequest.getDescription(), todoCreateRequest.getTargetDate(), username,todoCreateRequest.getCategory());
 		todoSubject.createTodo(todoCreateRequest.getTitle());
 		return todoRepository.save(todo);
 	}
@@ -98,6 +98,7 @@ public class TodoService {
 		todo.setTitle(todoUpdateRequest.getTitle());
 		todo.setDescription(todoUpdateRequest.getDescription());
 		todo.setTargetDate(todoUpdateRequest.getTargetDate());
+		todo.setCategory(todoUpdateRequest.getCategory());
 		return todoRepository.save(todo);
 	}
 
@@ -160,10 +161,22 @@ public class TodoService {
 		return _pageSize;
 	}
 
-	public List<Todo> readByCategoryId(Long categoryId, String username){
+	public Todo addCategoryToTodo(Long todoId, Long categoryId, String username) {
+		Todo todo = todoRepository.findById(todoId)
+				.orElseThrow(() -> new ResourceNotFoundException("Todo not found"));
+
 		Category category = categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-		List<Todo> todos = todoRepository.findAllByCategoryAndUsername(category, username);
+
+//		category.getTodos().add(todo);
+//		category.setTodos(category.getTodos());
+
+		todo.setCategory(category);
+		return todoRepository.save(todo);
+	}
+
+	public List<Todo> readByCategoryId(Long categoryId, String username){
+		List<Todo> todos = todoRepository.findAllByCategoryAndUsername(categoryRepository.findById(categoryId), username);
 		return todos;
 	}
 
