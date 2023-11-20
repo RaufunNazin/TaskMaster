@@ -119,7 +119,11 @@ const Todo = () => {
       }
 
       if (selectedCategory && selectedCategoryTitle) {
-        requestBody.category = selectedCategory;
+        const categoryObject = {
+          id: selectedCategory,
+          name: selectedCategoryTitle, 
+        };
+        requestBody.category = categoryObject;
       }
 
       setTitle("");
@@ -135,20 +139,20 @@ const Todo = () => {
         })
         .then((res) => {
           if (res.status === 201) {
-            api
-              .put(
-                `/todo/${res.data.id}/addCategory`,
-                {
-                  category: selectedCategory,
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                }
-              )
-              .then((res) => console.log(res))
-              .catch((err) => console.log(err));
+            // api
+            //   .put(
+            //     `/todo/${res.data.id}/addCategory`,
+            //     {
+            //       category: selectedCategory,
+            //     },
+            //     {
+            //       headers: {
+            //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+            //       },
+            //     }
+            //   )
+            //   .then((res) => console.log(res))
+            //   .catch((err) => console.log(err));
             toast.success("Task added");
             getTasks();
           }
