@@ -86,9 +86,9 @@ const SidePanel = ({ onCategoryChange }) => {
         },
       })
       .then(() => {
-        toast.success("Category deleted");
         onCategoryChange((prev) => !prev);
         getCategory();
+        navigate("/", { state: "categoryDeleted" });
       })
       .catch((err) => {
         toast.error(err.response.data.message);
@@ -175,34 +175,40 @@ const SidePanel = ({ onCategoryChange }) => {
                       <div className="font-medium text-gray-700">
                         {category.title}
                       </div>
-                      {hoveredCategory === category.title && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button type="button">
-                              <Trash className="w-3 h-3 hover:text-red-800" />
-                            </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you absolutely sure?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete your category
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteCategory(category.id)}
+                      {hoveredCategory === category.title &&
+                        category.title !== "Important" &&
+                        category.title !== "Work" &&
+                        category.title !== "Personal" && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
+                                <Trash className="w-3 h-3 hover:text-red-800" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will
+                                  permanently delete your category
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteCategory(category.id)}
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                     </div>
                   </MenuItem>
                 </div>

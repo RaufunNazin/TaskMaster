@@ -91,10 +91,10 @@ const Sidebar = () => {
         },
       })
       .then(() => {
-        toast.success("Category deleted");
         const toggledValue = !categoryChangeBoolean;
         localStorage.setItem("categoryChange", toggledValue.toString());
         getCategory();
+        navigate("/", { state: "categoryDeleted" });
       })
       .catch((err) => {
         toast.error(err.response.data.message);
@@ -165,35 +165,38 @@ const Sidebar = () => {
                   {category.title}
                 </div>
               </div>
-
-              <div className="inline ml-5" onClick={closeSideBar}>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button type="button">
-                      <Trash className="w-3 h-3 text-red-800" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your category
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteCategory(category.id)}
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              {category.title !== "Important" &&
+                category.title !== "Work" &&
+                category.title !== "Personal" && (
+                  <div className="inline ml-5" onClick={closeSideBar}>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button type="button">
+                          <Trash className="w-3 h-3 text-red-800" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your category
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteCategory(category.id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
             </div>
           );
         })}

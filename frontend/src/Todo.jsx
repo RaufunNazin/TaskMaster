@@ -242,6 +242,9 @@ const Todo = () => {
     if (location.state === "login") {
       toast.success("Logged in successfully");
     }
+    if (location.state === "categoryDeleted") {
+      toast.success("Category deleted");
+    }
   }, []);
 
   useEffect(() => {
