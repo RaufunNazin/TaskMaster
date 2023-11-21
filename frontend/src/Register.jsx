@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "./api";
 import { CiStickyNote } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 function Register() {
   const navigate = useNavigate();
@@ -14,6 +14,9 @@ function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [cpassword, setCPassword] = useState("");
+  const [viewPassword, setViewPassword] = useState(false);
+  const [viewCPassword, setViewCPassword] = useState(false);
+
   const register = () => {
     if (cpassword !== password) {
       toast.error("Passwords do not match");
@@ -78,21 +81,68 @@ function Register() {
                 placeholder="Username"
               />
             </div>
-            <div className="">
+            <div className="flex rounded-md border border-slate-400">
               <Input
                 onChange={(e) => setPassword(e.target.value)}
                 id="password"
-                type="password"
+                type={`${viewPassword ? "text" : "password"}`}
                 placeholder="Password"
+                className="border border-transparent text-base text-body-color placeholder-body-color shadow-one outline-none focus-visible:shadow-none"
               />
+              {password && (
+                <button
+                  tabindex="-1"
+                  type="button"
+                  onClick={() => {
+                    setViewPassword((prev) => !prev);
+                  }}
+                  className="rounded-md rounded-l-none bg-white focus:outline-none"
+                >
+                  {viewPassword ? (
+                    <AiOutlineEyeInvisible
+                      tabindex="-1"
+                      className="mr-3 w-5 h-5 text-gray-600"
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      tabindex="-1"
+                      className="mr-3 w-5 h-5 text-gray-600"
+                    />
+                  )}
+                </button>
+              )}
             </div>
-            <div className="">
+            <div className="flex rounded-md border border-slate-400">
               <Input
                 onChange={(e) => setCPassword(e.target.value)}
                 id="cpassword"
-                type="password"
+                type={`${viewCPassword ? "text" : "password"}`}
                 placeholder="Confirm Password"
+                className="border border-transparent text-base text-body-color placeholder-body-color shadow-one outline-none focus-visible:shadow-none"
               />
+
+              {cpassword && (
+                <button
+                  tabindex="-1"
+                  type="button"
+                  onClick={() => {
+                    setViewCPassword((prev) => !prev);
+                  }}
+                  className="rounded-md rounded-l-none bg-white focus:outline-none"
+                >
+                  {viewCPassword ? (
+                    <AiOutlineEyeInvisible
+                      tabindex="-1"
+                      className="mr-3 w-5 h-5 text-gray-600"
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      tabindex="-1"
+                      className="mr-3 w-5 h-5 text-gray-600"
+                    />
+                  )}
+                </button>
+              )}
             </div>
             <div className="flex justify-center">
               <Button

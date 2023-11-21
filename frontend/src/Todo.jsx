@@ -4,11 +4,7 @@ import { Calendar } from "./ui/calendar";
 import { FcOk } from "react-icons/fc";
 import { format, parseISO } from "date-fns";
 import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  AiOutlineClockCircle,
-  AiOutlineStar,
-  AiTwotoneCalendar,
-} from "react-icons/ai";
+import { AiOutlineClockCircle, AiTwotoneCalendar } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { BsCheck2Circle, BsCheck2 } from "react-icons/bs";
 import { RxCross1 } from "react-icons/rx";
@@ -237,21 +233,9 @@ const Todo = () => {
       .catch((err) => console.log(err));
   };
 
-  const getCategoryTasks = () => {
-    api
-      .get("/category/11", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  };
-
   useEffect(() => {
     getTasks();
     getCategory();
-    getCategoryTasks();
     if (localStorage.getItem("token") === null) {
       navigate("/login", { state: "redirected" });
     }
@@ -446,9 +430,6 @@ const Todo = () => {
                                 onClick={() => getTask(item.id)}
                               >
                                 <CiEdit className="text-md lg:text-2xl hover:text-blue-600" />
-                              </button>
-                              <button>
-                                <AiOutlineStar className="text-md lg:text-2xl hover:text-yellow-600" />
                               </button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>

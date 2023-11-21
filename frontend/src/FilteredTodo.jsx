@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import { BiTimeFive } from "react-icons/bi";
+import { PiSmileySad } from "react-icons/pi";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
@@ -24,9 +24,9 @@ import { useParams, useLocation } from "react-router-dom";
 const FilteredTodo = () => {
   let { todoType } = useParams();
   const location = useLocation();
-  
+
   const [tasks, setTasks] = useState();
-  
+
   const getTasks = () => {
     api
       .get(`/category/${location.state}`, {
@@ -137,8 +137,8 @@ const FilteredTodo = () => {
                 })
               ) : (
                 <div className="shadow-md py-6 rounded-sm bg-white px-10 flex gap-x-4 items-center">
-                  <BiTimeFive className="text-2xl text-yellow-600" />
-                  <div>Yet to complete a task!</div>
+                  <PiSmileySad className="text-2xl text-yellow-600" />
+                  <div>No tasks in this category!</div>
                 </div>
               )}
             </div>
