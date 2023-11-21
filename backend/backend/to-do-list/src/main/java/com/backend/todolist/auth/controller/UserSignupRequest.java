@@ -1,11 +1,13 @@
 package com.backend.todolist.auth.controller;
 
+import com.backend.todolist.auth.factory.AuthRequest;
+
 import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-public class UserSignupRequest {
+public class UserSignupRequest implements AuthRequest {
 	@NotEmpty(message = "Username is required")
 	@Column(unique = true)
     private String username;
@@ -30,10 +32,12 @@ public class UserSignupRequest {
 		this.password = password;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}

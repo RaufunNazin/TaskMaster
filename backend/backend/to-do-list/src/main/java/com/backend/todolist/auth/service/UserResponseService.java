@@ -1,6 +1,7 @@
 package com.backend.todolist.auth.service;
 
 import com.backend.todolist.auth.controller.*;
+import com.backend.todolist.auth.factory.AuthResponseFactory;
 import com.backend.todolist.auth.jwt.JwtTokenGenerator;
 import com.backend.todolist.auth.model.PasswordResetToken;
 import com.backend.todolist.auth.model.User;
@@ -29,10 +30,10 @@ public class UserResponseService {
 
 	@Autowired
 	CategoryRepository categoryRepository;
-	
+
 	@Autowired
 	AuthenticationManager authenticationManager;
-	
+
 	@Autowired
     PasswordEncoder passwordEncoder;
 
@@ -42,18 +43,18 @@ public class UserResponseService {
 	@Autowired
 	PasswordResetTokenRepository passwordResetTokenRepository;
 
-	
+
 	public UserSignupResponse createSignUpResponse(UserSignupRequest userSignupRequest) {
 		try {
 			String username = userSignupRequest.getUsername();
 			String email = userSignupRequest.getEmail();
 	        String password = userSignupRequest.getPassword();
-	        
-	        User user =  userRepository.findByUsername(username);
+
+	        User user =  userRepository.findByUsernameOrEmail(username, email);
 	        if(user != null) {
-	        	throw new BadRequestException("Username already exists");
+	        	throw new BadRequestException("User already exists with this username/email");
 	        }
-	        
+
 	        User _user = new User(username, email, passwordEncoder.encode(password));
 	        _user = userRepository.save(_user);
 			// Create default categories for the user
@@ -70,26 +71,28 @@ public class UserResponseService {
 			work.setUsername(username);
 
 			categoryRepository.saveAll(Arrays.asList(important, personal, work));
-	        
+
 	        String token = jwtTokenGenerator.createToken(_user.getUsername(), _user.getRoleAsList());
-	        
+
 			return new UserSignupResponse(username, email, token);
 		} catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password");
         }
 	}
-	
+
+
 	public UserSigninResponse createSignInResponse(UserSigninRequest userSigninRequest) {
 		try {
 			String username = userSigninRequest.getUsername();
 	        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, userSigninRequest.getPassword()));
 	        String token = jwtTokenGenerator.createToken(username, this.userRepository.findByUsername(username).getRoleAsList());
-	        
+
 			return new UserSigninResponse(username, token);
 		} catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password");
         }
 	}
+
 
 	public UserResetPasswordResponse createResetPasswordResponse(UserResetPasswordRequest userResetPasswordRequest){
 		try {
@@ -109,12 +112,11 @@ public class UserResponseService {
 		}
 	}
 
-	private void sendResetTokenEmail(String recipientEmail, String token) {
+
+	public void sendResetTokenEmail(String recipientEmail, String token) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(recipientEmail);
 		message.setSubject("Password Reset Token");
-//		message.setText("Your password reset token is: " + token);
-//		emailSender.send(message);
 	}
 
 }

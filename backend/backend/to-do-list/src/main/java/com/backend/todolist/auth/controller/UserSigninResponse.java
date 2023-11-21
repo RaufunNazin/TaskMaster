@@ -1,6 +1,8 @@
 package com.backend.todolist.auth.controller;
 
-public class UserSigninResponse {
+import com.backend.todolist.auth.factory.AuthResponse;
+
+public class UserSigninResponse implements AuthResponse {
 	private String username;
 
 	private String token;
@@ -15,6 +17,7 @@ public class UserSigninResponse {
 		this.token = token;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
@@ -23,6 +26,7 @@ public class UserSigninResponse {
 		this.username = username;
 	}
 
+	@Override
 	public String getToken() {
 		return token;
 	}
