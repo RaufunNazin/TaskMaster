@@ -90,11 +90,6 @@ const Todo = () => {
         };
       }
 
-      setTitle("");
-      setDate("");
-      setDescription("");
-      setSelectedCategory("");
-
       api
         .post("/todo", requestBody, {
           headers: {
@@ -104,6 +99,11 @@ const Todo = () => {
         .then((res) => {
           if (res.status === 201) {
             toast.success("Task added");
+
+            setTitle("");
+            setDate("");
+            setDescription("");
+            setSelectedCategory("");
             getTasks();
           }
         })
@@ -201,11 +201,6 @@ const Todo = () => {
       };
     }
 
-    setUpdateTitle("");
-    setUpdateDate("");
-    setUpdateDescription("");
-    setUpdateCategory("");
-
     api
       .put(`/todo/${id}`, requestBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -214,6 +209,11 @@ const Todo = () => {
         if (res.status === 200) {
           toast.success("Task updated");
           setTask({});
+
+          setUpdateTitle("");
+          setUpdateDate("");
+          setUpdateDescription("");
+          setUpdateCategory("");
           getTasks();
         }
       })
@@ -330,7 +330,7 @@ const Todo = () => {
                     <AccordionTrigger></AccordionTrigger>
                     <AccordionContent>
                       <div className="flex flex-col lg:flex-row justify-between gap-x-4 gap-y-3 items-center">
-                        <textarea
+                        <input
                           placeholder="Add description (optional)"
                           value={description}
                           className="w-full outline-none ring-0 border-none col-span-3 lg:mr-4"
@@ -407,6 +407,7 @@ const Todo = () => {
                   pending.map((item) => {
                     const currentDate = new Date(item.targetDate);
                     currentDate.setDate(currentDate.getDate() + 1);
+                    const isExpired = currentDate < new Date(); // Check if the date is expired
                     return (
                       <div key={item.id}>
                         <div
@@ -416,12 +417,24 @@ const Todo = () => {
                         >
                           <div className=" flex justify-between items-center gap-x-3">
                             <div>
-                              <p className="text-lg lg:text-xl text-left whitespace-normal break-all overflow-hidden">
+                              <p
+                                className={`text-lg ${
+                                  isExpired ? "line-through italic" : ""
+                                } lg:text-xl text-left whitespace-normal break-all overflow-hidden`}
+                              >
                                 {item.title}
                               </p>
                               <div className="text-sm text-gray-500 flex items-center gap-x-1">
-                                <AiOutlineClockCircle />
-                                {currentDate.toISOString().slice(0, 10)}
+                                {isExpired ? (
+                                  <span className="text-red-700 italic">
+                                    Expired
+                                  </span>
+                                ) : (
+                                  <>
+                                    <AiOutlineClockCircle />
+                                    {currentDate.toISOString().slice(0, 10)}
+                                  </>
+                                )}
                               </div>
                             </div>
                             <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
@@ -489,7 +502,7 @@ const Todo = () => {
                               </AlertDialog>
                             </div>
                           </div>
-                          {item.description && item.category && (
+                          {(item.description || item.category) && (
                             <Accordion
                               type="single"
                               collapsible
@@ -504,9 +517,41 @@ const Todo = () => {
                                         "No description added"}
                                     </div>
                                     {item.category && (
-                                      <div className="flex justify-center gap-x-1 border border-blue-300 py-0.5 px-2 rounded-md items-center">
-                                        <div className="h-2 w-2 bg-blue-300 rounded-full"></div>
-                                        <div className="text-blue-400 text-sm">
+                                      <div
+                                        className={`flex justify-center gap-x-1 border ${
+                                          item.category.title === "Important"
+                                            ? "border-yellow-500"
+                                            : item.category.title === "Work"
+                                            ? "border-amber-950"
+                                            : item.category.title === "Personal"
+                                            ? "border-blue-500"
+                                            : "border-red-700"
+                                        } py-0.5 px-2 rounded-md items-center`}
+                                      >
+                                        <div
+                                          className={`h-2 w-2 ${
+                                            item.category.title === "Important"
+                                              ? "bg-yellow-500"
+                                              : item.category.title === "Work"
+                                              ? "bg-amber-950"
+                                              : item.category.title ===
+                                                "Personal"
+                                              ? "bg-blue-500"
+                                              : "bg-red-700"
+                                          } rounded-full`}
+                                        ></div>
+                                        <div
+                                          className={`${
+                                            item.category.title === "Important"
+                                              ? "text-yellow-500"
+                                              : item.category.title === "Work"
+                                              ? "text-amber-950"
+                                              : item.category.title ===
+                                                "Personal"
+                                              ? "text-blue-500"
+                                              : "text-red-700"
+                                          } text-sm`}
+                                        >
                                           {item.category.title}
                                         </div>
                                       </div>
@@ -594,7 +639,7 @@ const Todo = () => {
                                 <AccordionTrigger></AccordionTrigger>
                                 <AccordionContent>
                                   <div className="flex flex-col lg:flex-row justify-between gap-x-4 gap-y-3 items-center">
-                                    <textarea
+                                    <input
                                       placeholder="Update description"
                                       value={
                                         updateDescription

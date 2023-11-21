@@ -1,9 +1,11 @@
 import Navbar from "./components/Navbar";
 import { PiSmileySad } from "react-icons/pi";
-import { AiOutlineClockCircle } from "react-icons/ai";
+import { AiOutlineClockCircle, AiTwotoneCalendar } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Calendar } from "./ui/calendar";
+import { format, parseISO } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,17 +17,63 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
+import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "./ui/command";
 import SidePanel from "./components/SidePanel";
 import { useEffect, useState } from "react";
 import { BiChevronsRight } from "react-icons/bi";
 import api from "./api";
+import { CiEdit } from "react-icons/ci";
 import { useParams, useLocation } from "react-router-dom";
+import { BsCheck2, BsCheck2Circle } from "react-icons/bs";
+import { RxCross1 } from "react-icons/rx";
+import { useNavigate } from "react-router-dom";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "./lib/utils";
 
 const FilteredTodo = () => {
   let { todoType } = useParams();
   const location = useLocation();
+  const today = new Date();
+  const beforeToday = { before: today };
+  const navigate = useNavigate();
+  const categoryChangeSidebar = localStorage.getItem("categoryChange");
 
-  const [tasks, setTasks] = useState();
+  const [tasks, setTasks] = useState([]);
+  const [pending, setPending] = useState([]);
+  const [task, setTask] = useState({});
+  const [categories, setCategories] = useState([]);
+
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState(null);
+  const [description, setDescription] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategoryTitle, setSelectedCategoryTitle] = useState("");
+
+  const [updateTitle, setUpdateTitle] = useState("");
+  const [updateDate, setUpdateDate] = useState(null);
+  const [updateDescription, setUpdateDescription] = useState("");
+  const [updateCategory, setUpdateCategory] = useState("");
+  const [updateCategoryTitle, setUpdateCategoryTitle] = useState("");
+
+  const [categoryChange, setCategoryChange] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [updateCalendarOpen, setUpdateCalendarOpen] = useState(false);
+  const [updateCategoryOpen, setUpdateCategoryOpen] = useState(false);
 
   const getTasks = () => {
     api
@@ -34,7 +82,7 @@ const FilteredTodo = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          setTasks([...res.data.todos]);
+          setTasks([...res.data.todos].filter((task) => task.isCompleted === false));
         }
       })
       .catch((err) => {
@@ -58,9 +106,110 @@ const FilteredTodo = () => {
       });
   };
 
+  const completeTask = (id) => {
+    api
+      .put(
+        `/todo/${id}/markcomplete`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success("Task marked as completed");
+          getTasks();
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const getTask = (id) => {
+    api
+      .get(`/todo/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          setTask(res.data);
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const updateTask = (id) => {
+    const requestBody = {
+      title: updateTitle ? updateTitle : task.title,
+      targetDate: updateDate ? updateDate : task.targetDate,
+    };
+
+    if (updateDescription) {
+      requestBody.description = updateDescription
+        ? updateDescription
+        : task.description;
+    }
+
+    if (updateCategory && updateCategoryTitle) {
+      requestBody.category = {
+        id: updateCategory ? updateCategory : task.category.id,
+        name: updateCategoryTitle ? updateCategoryTitle : task.category.title,
+      };
+    }
+
+    api
+      .put(`/todo/${id}`, requestBody, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success("Task updated");
+          setTask({});
+
+          setUpdateTitle("");
+          setUpdateDate("");
+          setUpdateDescription("");
+          setUpdateCategory("");
+          getTasks();
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const getCategory = () => {
+    api
+      .get("/category", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => setCategories([...res.data]))
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
     getTasks();
   }, [todoType]);
+
+  useEffect(() => {
+    getTasks();
+    getCategory();
+    if (localStorage.getItem("token") === null) {
+      navigate("/login", { state: "redirected" });
+    }
+    if (location.state === "login") {
+      toast.success("Logged in successfully");
+    }
+  }, []);
+
+  useEffect(() => {
+    getCategory();
+  }, [categoryChange, categoryChangeSidebar]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -78,7 +227,7 @@ const FilteredTodo = () => {
       />
       <Navbar />
       <div className="flex flex-1">
-        <SidePanel />
+        <SidePanel onCategoryChange={setCategoryChange} />
         <div className="flex flex-col w-full">
           <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
             <p className="text-lg lg:text-2xl">{todoType} Tasks</p>
@@ -90,47 +239,312 @@ const FilteredTodo = () => {
                 tasks?.map((item) => {
                   const currentDate = new Date(item.targetDate);
                   currentDate.setDate(currentDate.getDate() + 1);
+                  const isExpired = currentDate < new Date(); // Check if the date is expired
                   return (
-                    <div
-                      key={item.id}
-                      className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
-                    >
-                      <div>
-                        <p className="text-lg lg:text-xl text-left whitespace-normal break-all overflow-hidden">
-                          {item.title}
-                        </p>
-                        <div className="text-sm text-gray-500 flex items-center gap-x-1">
-                          <AiOutlineClockCircle />
-                          {currentDate.toISOString().slice(0, 10)}
-                        </div>
-                      </div>
-                      <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button type="button">
-                              <RiDeleteBin6Line className="text-md lg:text-2xl hover:text-red-800" />
+                    <div key={item.id}>
+                      <div
+                        className={`${
+                          task && task.id === item.id ? "hidden" : "block"
+                        } w-full shadow-md py-3 rounded-sm bg-white px-4 lg:px-10`}
+                      >
+                        <div className=" flex justify-between items-center gap-x-3">
+                          <div>
+                            <p
+                              className={`text-lg ${
+                                isExpired ? "line-through italic" : ""
+                              } lg:text-xl text-left whitespace-normal break-all overflow-hidden`}
+                            >
+                              {item.title}
+                            </p>
+                            <div className="text-sm text-gray-500 flex items-center gap-x-1">
+                              {isExpired ? (
+                                <span className="text-red-700 italic">
+                                  Expired
+                                </span>
+                              ) : (
+                                <>
+                                  <AiOutlineClockCircle />
+                                  {currentDate.toISOString().slice(0, 10)}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-x-2 lg:gap-x-4 text-gray-500">
+                            <button
+                              type="button"
+                              onClick={() => getTask(item.id)}
+                            >
+                              <CiEdit className="text-md lg:text-2xl hover:text-blue-600" />
                             </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you absolutely sure?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete your task
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteTask(item.id)}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button type="button">
+                                  <RiDeleteBin6Line className="text-md lg:text-2xl hover:text-red-800" />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Are you absolutely sure?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will
+                                    permanently delete your task
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteTask(item.id)}
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button type="button">
+                                  <BsCheck2Circle className="text-md lg:text-2xl hover:text-green-600" />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Task Completed?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will mark
+                                    your task as completed
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => completeTask(item.id)}
+                                  >
+                                    Done
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                        {(item.description || item.category) && (
+                          <Accordion
+                            type="single"
+                            collapsible
+                            className="w-full outline-none ring-0"
+                          >
+                            <AccordionItem value="item-1">
+                              <AccordionTrigger></AccordionTrigger>
+                              <AccordionContent>
+                                <div className="flex flex-row justify-between gap-x-4 gap-y-3 items-start">
+                                  <div className=" whitespace-normal break-all overflow-hidden">
+                                    {item.description ?? "No description added"}
+                                  </div>
+                                  {item.category && (
+                                    <div
+                                      className={`flex justify-center gap-x-1 border ${
+                                        item.category.title === "Important"
+                                          ? "border-yellow-500"
+                                          : item.category.title === "Work"
+                                          ? "border-amber-950"
+                                          : item.category.title === "Personal"
+                                          ? "border-blue-500"
+                                          : "border-red-700"
+                                      } py-0.5 px-2 rounded-md items-center`}
+                                    >
+                                      <div
+                                        className={`h-2 w-2 ${
+                                          item.category.title === "Important"
+                                            ? "bg-yellow-500"
+                                            : item.category.title === "Work"
+                                            ? "bg-amber-950"
+                                            : item.category.title === "Personal"
+                                            ? "bg-blue-500"
+                                            : "bg-red-700"
+                                        } rounded-full`}
+                                      ></div>
+                                      <div
+                                        className={`${
+                                          item.category.title === "Important"
+                                            ? "text-yellow-500"
+                                            : item.category.title === "Work"
+                                            ? "text-amber-950"
+                                            : item.category.title === "Personal"
+                                            ? "text-blue-500"
+                                            : "text-red-700"
+                                        } text-sm`}
+                                      >
+                                        {item.category.title}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                        )}
+                      </div>
+                      <div
+                        className={`${
+                          task && task.id === item.id ? "block" : "hidden"
+                        }`}
+                      >
+                        <div className="lg:flex lg:flex-col gap-y-2 p-2 shadow-md pt-5 rounded-md bg-white">
+                          <div className="px-4 lg:px-10 lg:flex gap-x-4 items-center">
+                            <input
+                              type="text"
+                              value={updateTitle ? updateTitle : task.title}
+                              className="w-full outline-none ring-0 border-none"
+                              onChange={(e) => setUpdateTitle(e.target.value)}
+                            />
+                            <div className="flex gap-x-4 items-center justify-between mt-4 lg:mt-0">
+                              <Popover
+                                open={updateCalendarOpen}
+                                onOpenChange={() => setUpdateCalendarOpen(true)}
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={`w-full lg:w-[280px] text-sm justify-center text-left font-normal ${
+                                      !task.targetDate &&
+                                      "text-muted-foreground"
+                                    }`}
+                                  >
+                                    <AiTwotoneCalendar className="mr-2 h-4 w-4" />
+                                    {updateDate ? (
+                                      format(updateDate, "PPP")
+                                    ) : task.targetDate ? (
+                                      format(parseISO(task.targetDate), "PPP")
+                                    ) : (
+                                      <span>Pick a Date</span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    defaultMonth={today}
+                                    mode="single"
+                                    disabled={beforeToday}
+                                    selected={updateDate}
+                                    onSelect={(newDate) => {
+                                      setUpdateDate(newDate);
+                                      setUpdateCalendarOpen(false);
+                                    }}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <button
+                                type="button"
+                                className="cursor-pointer"
+                                onClick={() => updateTask(item.id)}
+                              >
+                                <BsCheck2 className="text-3xl text-blue-600 hover:text-blue-500" />
+                              </button>
+                              <button
+                                type="button"
+                                className="cursor-pointer"
+                                onClick={() => setTask({})}
+                              >
+                                <RxCross1 className="text-2xl text-red-700 hover:text-blue-500" />
+                              </button>
+                            </div>
+                          </div>
+                          <Accordion
+                            type="single"
+                            collapsible
+                            className="w-full px-4 lg:px-10 outline-none ring-0"
+                          >
+                            <AccordionItem value="item-1">
+                              <AccordionTrigger></AccordionTrigger>
+                              <AccordionContent>
+                                <div className="flex flex-col lg:flex-row justify-between gap-x-4 gap-y-3 items-center">
+                                  <input
+                                    placeholder="Update description"
+                                    value={
+                                      updateDescription
+                                        ? updateDescription
+                                        : task.description
+                                    }
+                                    className="w-full outline-none ring-0 border-none col-span-3 lg:mr-4"
+                                    onChange={(e) =>
+                                      setUpdateDescription(e.target.value)
+                                    }
+                                  />
+                                  <div className="flex justify-center">
+                                    <Popover
+                                      open={updateCategoryOpen}
+                                      onOpenChange={setUpdateCategoryOpen}
+                                    >
+                                      <PopoverTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          role="combobox"
+                                          aria-expanded={updateCategoryOpen}
+                                          className="w-full lg:w-[200px] justify-between font-normal"
+                                        >
+                                          {updateCategory
+                                            ? updateCategoryTitle
+                                            : task.category
+                                            ? task.category.title
+                                            : "Change category"}
+                                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-[300px] lg:w-[200px] p-0">
+                                        <Command>
+                                          <CommandInput placeholder="Search categories..." />
+                                          <CommandEmpty>
+                                            No category found
+                                          </CommandEmpty>
+                                          <CommandGroup>
+                                            {categories.map((category) => (
+                                              <CommandItem
+                                                key={category.id}
+                                                value={
+                                                  selectedCategory
+                                                    ? categories.find(
+                                                        (category) =>
+                                                          category.id ===
+                                                          selectedCategory
+                                                      )?.title
+                                                    : ""
+                                                }
+                                                onSelect={() => {
+                                                  setUpdateCategory(
+                                                    category.id
+                                                  );
+                                                  setUpdateCategoryTitle(
+                                                    category.title
+                                                  );
+                                                  setUpdateCategoryOpen(false);
+                                                }}
+                                              >
+                                                <Check
+                                                  className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    selectedCategory ===
+                                                      category.id
+                                                      ? "opacity-100"
+                                                      : "opacity-0"
+                                                  )}
+                                                />
+                                                {category.title}
+                                              </CommandItem>
+                                            ))}
+                                          </CommandGroup>
+                                        </Command>
+                                      </PopoverContent>
+                                    </Popover>
+                                  </div>
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                        </div>
                       </div>
                     </div>
                   );
