@@ -7,12 +7,14 @@ import api from "./api";
 import { ToastContainer, toast } from "react-toastify";
 import { CiStickyNote } from "react-icons/ci";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [viewPassword, setViewPassword] = useState(false);
   const login = () => {
     api
       .post("/auth/signin", {
@@ -72,13 +74,29 @@ function Login() {
                 placeholder="Username"
               />
             </div>
-            <div className="">
+            <div className="flex rounded-md border border-slate-400">
               <Input
                 onChange={(e) => setPassword(e.target.value)}
                 id="password"
-                type="password"
+                type={`${viewPassword ? "text" : "password"}`}
                 placeholder="Password"
+                className="border border-transparent text-base text-body-color placeholder-body-color shadow-one outline-none focus-visible:shadow-none"
               />
+              {password && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewPassword((prev) => !prev);
+                  }}
+                  className="rounded-md rounded-l-none bg-white"
+                >
+                  {viewPassword ? (
+                    <AiOutlineEyeInvisible className="mr-3 w-5 h-5 text-gray-600" />
+                  ) : (
+                    <AiOutlineEye className="mr-3 w-5 h-5 text-gray-600" />
+                  )}
+                </button>
+              )}
             </div>
             <div className="flex justify-center">
               <Button

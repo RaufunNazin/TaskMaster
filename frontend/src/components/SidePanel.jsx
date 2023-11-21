@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CgDetailsMore } from "react-icons/cg";
+import { IoChevronForwardOutline } from "react-icons/io5";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { AiFillStar } from "react-icons/ai";
 import { BsFillPersonFill, BsClipboardCheck } from "react-icons/bs";
@@ -27,42 +27,20 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
 import { Trash } from "lucide-react";
 
-const SidePanel = () => {
+const SidePanel = ({ onCategoryChange }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [userCategory, setUserCategory] = useState([]);
-  const [hover, setHover] = useState(false);
-  const [categories, setCategories] = useState([
-    {
-      title: "All Tasks",
-      icon: <BsClipboardCheck className="text-gray-800" />,
-      path: "/",
-    },
-    {
-      title: "Important",
-      icon: <AiFillStar className="text-yellow-500" />,
-      path: "/important",
-    },
-    {
-      title: "Personal",
-      icon: <BsFillPersonFill className="text-blue-500" />,
-      path: "/personal",
-    },
-    {
-      title: "Work",
-      icon: <MdWork className="text-amber-950" />,
-      path: "/work",
-    },
-  ]);
+  const [hoveredCategory, setHoveredCategory] = useState("");
 
   const getCategory = () => {
     api
@@ -76,7 +54,6 @@ const SidePanel = () => {
   };
 
   const createCategory = () => {
-    // Add the new category to the state.
     if (categoryTitle) {
       api
         .post(
@@ -90,8 +67,9 @@ const SidePanel = () => {
             },
           }
         )
-        .then((res) => {
+        .then(() => {
           toast.success("Category created");
+          onCategoryChange((prev) => !prev);
           getCategory();
         })
         .catch((err) => {
@@ -107,8 +85,9 @@ const SidePanel = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-      .then((res) => {
+      .then(() => {
         toast.success("Category deleted");
+        onCategoryChange((prev) => !prev);
         getCategory();
       })
       .catch((err) => {
@@ -135,9 +114,9 @@ const SidePanel = () => {
                   collapsed ? "center" : "end"
                 } flex-1`}
               >
-                <CgDetailsMore
-                  className={`transition-all duration-300 rotate-180 ${
-                    collapsed ? "rotate-0" : ""
+                <IoChevronForwardOutline
+                  className={`transition-all duration-300 ${
+                    collapsed ? "rotate-0" : "rotate-180"
                   }`}
                 />
               </div>
@@ -148,35 +127,55 @@ const SidePanel = () => {
               Categories
             </div>
           )}
-          {categories.length > 0 &&
-            categories.map((category, i) => {
-              return (
-                <div className="w-full" onClick={() => navigate(category.path)}>
-                  <MenuItem key={i} icon={category.icon}>
-                    <div className="font-medium text-gray-700">
-                      {category.title}
-                    </div>
-                  </MenuItem>
-                </div>
-              );
-            })}
+          <div
+            className={`w-full ${
+              location.pathname === "/" ? "bg-blue-100" : ""
+            }`}
+            onClick={() => {
+              if (location.pathname !== "/") navigate("/");
+            }}
+          >
+            <MenuItem icon={<BsClipboardCheck className="text-gray-800" />}>
+              <div className="font-medium text-gray-700">All Tasks</div>
+            </MenuItem>
+          </div>
           {userCategory.length > 0 &&
             userCategory.map((category) => {
               return (
                 <div
-                  className="w-full"
-                  onMouseEnter={() => setHover(true)}
-                  onMouseLeave={() => setHover(false)}
+                  key={category.id}
+                  className={`w-full ${
+                    location.pathname === `/todo/${category.title}`
+                      ? "bg-blue-100"
+                      : ""
+                  }`}
+                  onMouseEnter={() => setHoveredCategory(category.title)}
+                  onMouseLeave={() => setHoveredCategory("")}
+                  onClick={() => {
+                    if (location.pathname !== `/todo/${category.title}`)
+                      navigate(`/todo/${category.title}`, {
+                        state: category.id,
+                      });
+                  }}
                 >
                   <MenuItem
-                    key={category.id}
-                    icon={<GiPin className="text-red-700" />}
+                    icon={
+                      category.title === "Important" ? (
+                        <AiFillStar className="text-yellow-500" />
+                      ) : category.title === "Work" ? (
+                        <MdWork className="text-amber-950" />
+                      ) : category.title === "Personal" ? (
+                        <BsFillPersonFill className="text-blue-500" />
+                      ) : (
+                        <GiPin className="text-red-700" />
+                      )
+                    }
                   >
                     <div className="flex justify-between items-center">
                       <div className="font-medium text-gray-700">
                         {category.title}
                       </div>
-                      {hover && (
+                      {hoveredCategory === category.title && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <button type="button">
@@ -209,7 +208,14 @@ const SidePanel = () => {
                 </div>
               );
             })}
-          <div className="w-full" onClick={() => navigate("/completed")}>
+          <div
+            className={`w-full ${
+              location.pathname === "/completed" ? "bg-blue-100" : ""
+            }`}
+            onClick={() => {
+              if (location.pathname !== "/completed") navigate("/completed");
+            }}
+          >
             <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
               <div className="font-medium text-gray-700">Completed Tasks</div>
             </MenuItem>
@@ -237,18 +243,13 @@ const SidePanel = () => {
                   your preferences.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="Friends and Families"
-                    className="col-span-3"
-                    onChange={(e) => setCategoryTitle(e.target.value)}
-                  />
-                </div>
+              <div>
+                <Input
+                  id="title"
+                  placeholder="Category title"
+                  className="mt-5"
+                  onChange={(e) => setCategoryTitle(e.target.value)}
+                />
               </div>
               <DialogFooter>
                 <Button
@@ -257,6 +258,7 @@ const SidePanel = () => {
                     setOpenDialog(false);
                     createCategory();
                   }}
+                  className="w-full"
                 >
                   Create
                 </Button>

@@ -3,8 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
 import Todo from "./Todo";
-import Completed from "./Completed";
+import FilteredTodo from "./FilteredTodo";
 import Sidebar from "./components/SideBar";
+import Completed from "./Completed";
 function App() {
   return (
     <div className="App font-body" id="outer-container">
@@ -21,6 +22,7 @@ function App() {
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="todo" element={<Todo />} />
+              <Route path="todo/:todoType" element={<FilteredTodo />} />
               <Route path="completed" element={<Completed />} />
             </Route>
           </Routes>

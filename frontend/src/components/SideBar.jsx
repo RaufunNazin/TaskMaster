@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { slide as Menu } from "react-burger-menu";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import { useState, useEffect } from "react";
 import {
@@ -13,70 +13,103 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { AiFillStar } from "react-icons/ai";
 import { BsFillPersonFill, BsClipboardCheck } from "react-icons/bs";
 import { BsCheck2Circle } from "react-icons/bs";
 import { GiPin } from "react-icons/gi";
 import { MdWork, MdOutlineAdd } from "react-icons/md";
+import { toast } from "react-toastify";
+import api from "../api";
+import { Trash } from "lucide-react";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [userCategory, setUserCategory] = useState([]);
   const [isOpen, setOpen] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      title: "All Tasks",
-      icon: (
-        <BsClipboardCheck className="inline mr-2 text-gray-800 text-xl pb-0.5" />
-      ),
-      path: "/",
-    },
-    {
-      id: 2,
-      title: "Important",
-      icon: (
-        <AiFillStar className="inline mr-2 text-yellow-500 text-xl pb-0.5" />
-      ),
-      path: "/important",
-    },
-    {
-      id: 3,
-      title: "Personal",
-      icon: (
-        <BsFillPersonFill className="inline mr-2 text-blue-500 text-xl pb-0.5" />
-      ),
-      path: "/personal",
-    },
-    {
-      id: 4,
-      title: "Work",
-      icon: <MdWork className="inline mr-2 text-amber-950 text-xl pb-0.5" />,
-      path: "/work",
-    },
-  ]);
+
+  const categoryChange = localStorage.getItem("categoryChange");
+  const categoryChangeBoolean = categoryChange === "true";
+
+  const getCategory = () => {
+    api
+      .get("/category", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => setUserCategory([...res.data]))
+      .catch((err) => console.log(err));
+  };
+
+  const createCategory = () => {
+    if (categoryTitle) {
+      api
+        .post(
+          "/category",
+          {
+            title: categoryTitle,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then(() => {
+          toast.success("Category created");
+          const toggledValue = !categoryChangeBoolean;
+          localStorage.setItem("categoryChange", toggledValue.toString());
+          getCategory();
+        })
+        .catch((err) => {
+          toast.error(err.response.data.message);
+        });
+    } else toast.error("Please enter a title for the category.");
+  };
+
+  const deleteCategory = (id) => {
+    api
+      .delete(`/category/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(() => {
+        toast.success("Category deleted");
+        const toggledValue = !categoryChangeBoolean;
+        localStorage.setItem("categoryChange", toggledValue.toString());
+        getCategory();
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  useEffect(() => {
+    getCategory();
+  }, []);
 
   const handleIsOpen = () => {
     setOpen(!isOpen);
   };
 
   const closeSideBar = () => {
-    setOpen(false);
-  };
-
-  const createCategory = () => {
-    // You can provide your own icon for the new category.
-    const newCategory = {
-      title: categoryTitle,
-      icon: <GiPin className="text-red-700" />,
-    };
-
-    // Add the new category to the state.
-    setCategories([...categories, newCategory]);
     setOpen(false);
   };
 
@@ -91,42 +124,105 @@ const Sidebar = () => {
       }`}
     >
       <Menu right isOpen={isOpen} onOpen={handleIsOpen} onClose={handleIsOpen}>
-        {categories.map((category) => {
+        <div
+          onClick={() => {
+            if (location.pathname !== "/") navigate("/");
+            closeSideBar();
+          }}
+          className={`w-full flex items-center gap-x-2`}
+        >
+          <BsClipboardCheck className="inline mr-2 text-gray-800 text-xl pb-0.5" />
+          <div className="menu-item inline font-medium text-gray-700">
+            All Tasks
+          </div>
+        </div>
+        {userCategory.map((category) => {
           return (
-            <div key={category.id} onClick={closeSideBar}>
-              {category.icon}
-              <Link
-                to={category.path}
-                className="menu-item font-medium text-gray-700"
+            <div
+              key={category.id}
+              className={`w-full flex justify-between items-center gap-x-2`}
+            >
+              <div
+                className="inline"
+                onClick={() => {
+                  if (location.pathname !== `/todo/${category.title}`)
+                    navigate(`/todo/${category.title}`, {
+                      state: category.id,
+                    });
+                  closeSideBar();
+                }}
               >
-                {category.title}
-              </Link>
+                {category.title === "Important" ? (
+                  <AiFillStar className="inline mr-2 text-yellow-500 text-xl pb-0.5" />
+                ) : category.title === "Work" ? (
+                  <MdWork className="inline mr-2 text-amber-950 text-xl pb-0.5" />
+                ) : category.title === "Personal" ? (
+                  <BsFillPersonFill className="inline mr-2 text-blue-500 text-xl pb-0.5" />
+                ) : (
+                  <GiPin className="inline mr-2 text-red-700 text-xl pb-0.5" />
+                )}
+                <div className="menu-item inline font-medium text-gray-700">
+                  {category.title}
+                </div>
+              </div>
+
+              <div className="inline ml-5" onClick={closeSideBar}>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button type="button">
+                      <Trash className="w-3 h-3 text-red-800" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your category
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteCategory(category.id)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           );
         })}
-        <div onClick={closeSideBar}>
+        <div
+          onClick={() => {
+            if (location.pathname !== "/completed") navigate("/completed");
+            closeSideBar();
+          }}
+          className={`w-full flex items-center gap-x-2`}
+        >
           <BsCheck2Circle className="inline mr-2 text-green-600 text-xl pb-0.5" />
-          <Link to="/completed" className="menu-item font-medium text-gray-700">
+          <div className="menu-item inline font-medium text-gray-700">
             Completed Tasks
-          </Link>
+          </div>
         </div>
         <hr className="my-6" />
-        {/* <Dialog
+        <Dialog
           open={openDialog}
           onOpenChange={() => {
             setOpen(false);
-            setOpenDialog(true);
+            setOpenDialog((prev) => !prev);
           }}
         >
           <DialogTrigger asChild>
-            <div>
-              <MdOutlineAdd className="inline mr-2 text-blue-600 text-xl pb-0.5" />
-              <Link
-                to="/completed"
-                className="menu-item font-medium text-blue-600"
-              >
+            <div className="flex items-center gap-x-2">
+              <MdOutlineAdd className="inline text-blue-600 text-xl pb-0.5" />
+              <div className="menu-item inline font-normal text-blue-600">
                 New Category
-              </Link>
+              </div>
             </div>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -137,18 +233,13 @@ const Sidebar = () => {
                 your preferences.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="title" className="text-right">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="Friends and Families"
-                  className="col-span-3"
-                  onChange={(e) => setCategoryTitle(e.target.value)}
-                />
-              </div>
+            <div>
+              <Input
+                id="title"
+                placeholder="Category title"
+                onChange={(e) => setCategoryTitle(e.target.value)}
+                className="mt-5"
+              />
             </div>
             <DialogFooter>
               <Button
@@ -157,12 +248,13 @@ const Sidebar = () => {
                   setOpenDialog(false);
                   createCategory();
                 }}
+                className="w-full"
               >
                 Create
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog> */}
+        </Dialog>
       </Menu>
     </div>
   );
