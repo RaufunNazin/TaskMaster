@@ -38,7 +38,6 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
 } from "./ui/command";
 import { cn } from "./lib/utils";
 import SidePanel from "./components/SidePanel";
@@ -238,9 +237,21 @@ const Todo = () => {
       .catch((err) => console.log(err));
   };
 
+  const getCategoryTasks = () => {
+    api
+      .get("/category/11", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
     getTasks();
     getCategory();
+    getCategoryTasks();
     if (localStorage.getItem("token") === null) {
       navigate("/login", { state: "redirected" });
     }
@@ -269,7 +280,7 @@ const Todo = () => {
       />
       <Navbar />
       <div className="flex flex-1 relative">
-        <SidePanel onCategoryChange={setCategoryChange} path={"/"} />
+        <SidePanel onCategoryChange={setCategoryChange} />
         <div className="flex flex-col w-full">
           <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
             <p className="text-lg lg:text-2xl">All Tasks</p>
@@ -415,7 +426,6 @@ const Todo = () => {
                     return (
                       <div key={item.id}>
                         <div
-                          type="button"
                           className={`${
                             task && task.id === item.id ? "hidden" : "block"
                           } w-full shadow-md py-3 rounded-sm bg-white px-4 lg:px-10`}

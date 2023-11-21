@@ -19,21 +19,20 @@ import SidePanel from "./components/SidePanel";
 import { useEffect, useState } from "react";
 import { BiChevronsRight } from "react-icons/bi";
 import api from "./api";
-import { useParams, useLocation } from "react-router-dom";
 
-const FilteredTodo = () => {
-  const [tasks, setTasks] = useState();
-  let { todoType } = useParams();
-  const location = useLocation();
+const Completed = () => {
+  const [completed, setCompleted] = useState();
 
   const getTasks = () => {
     api
-      .get(`/category/${location.state}`, {
+      .get("/todo/0/1000", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
         if (res.status === 200) {
-          setTasks([...res.data.todos]);
+          setCompleted(
+            [...res.data].filter((task) => task.isCompleted === true)
+          );
         }
       })
       .catch((err) => {
@@ -59,7 +58,7 @@ const FilteredTodo = () => {
 
   useEffect(() => {
     getTasks();
-  }, [todoType]);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -80,17 +79,18 @@ const FilteredTodo = () => {
         <SidePanel />
         <div className="flex flex-col w-full">
           <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
-            <p className="text-lg lg:text-2xl">{todoType} Tasks</p>
+            <p className="text-lg lg:text-2xl">Completed Tasks</p>
             <BiChevronsRight className="text-md lg:text-xl" />
           </div>
           <div className="lg:grid lg:grid-cols-1 lg:gap-x-24 pt-4 lg:pt-8 px-2 lg:px-12 bg-gray-50 flex-1">
             <div className="flex flex-col gap-y-2 p-4">
-              {tasks?.length > 0 ? (
-                tasks?.map((item) => {
+              {completed?.length > 0 ? (
+                completed?.map((item) => {
                   const currentDate = new Date(item.targetDate);
                   currentDate.setDate(currentDate.getDate() + 1);
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={item.id}
                       className="shadow-md py-3 rounded-sm bg-white px-4 lg:px-10 flex justify-between items-center gap-x-3"
                     >
@@ -131,7 +131,7 @@ const FilteredTodo = () => {
                           </AlertDialogContent>
                         </AlertDialog>
                       </div>
-                    </div>
+                    </button>
                   );
                 })
               ) : (
@@ -148,4 +148,4 @@ const FilteredTodo = () => {
   );
 };
 
-export default FilteredTodo;
+export default Completed;

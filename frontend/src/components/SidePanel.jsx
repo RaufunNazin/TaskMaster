@@ -27,42 +27,20 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api";
 import { Trash } from "lucide-react";
 
-const SidePanel = ({ onCategoryChange, path }) => {
+const SidePanel = ({ onCategoryChange }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [userCategory, setUserCategory] = useState([]);
   const [hoveredCategory, setHoveredCategory] = useState("");
-  const [categories, setCategories] = useState([
-    {
-      title: "All Tasks",
-      icon: <BsClipboardCheck className="text-gray-800" />,
-      path: "/",
-    },
-    {
-      title: "Important",
-      icon: <AiFillStar className="text-yellow-500" />,
-      path: "/important",
-    },
-    {
-      title: "Personal",
-      icon: <BsFillPersonFill className="text-blue-500" />,
-      path: "/personal",
-    },
-    {
-      title: "Work",
-      icon: <MdWork className="text-amber-950" />,
-      path: "/work",
-    },
-  ]);
 
   const getCategory = () => {
     api
@@ -89,7 +67,7 @@ const SidePanel = ({ onCategoryChange, path }) => {
             },
           }
         )
-        .then((res) => {
+        .then(() => {
           toast.success("Category created");
           onCategoryChange((prev) => !prev);
           getCategory();
@@ -107,7 +85,7 @@ const SidePanel = ({ onCategoryChange, path }) => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-      .then((res) => {
+      .then(() => {
         toast.success("Category deleted");
         onCategoryChange((prev) => !prev);
         getCategory();
@@ -150,9 +128,11 @@ const SidePanel = ({ onCategoryChange, path }) => {
             </div>
           )}
           <div
-            className={`w-full ${path === "/" ? "bg-blue-100" : ""}`}
+            className={`w-full ${
+              location.pathname === "/" ? "bg-blue-100" : ""
+            }`}
             onClick={() => {
-              if (path !== "/") navigate("/");
+              if (location.pathname !== "/") navigate("/");
             }}
           >
             <MenuItem icon={<BsClipboardCheck className="text-gray-800" />}>
@@ -165,13 +145,17 @@ const SidePanel = ({ onCategoryChange, path }) => {
                 <div
                   key={category.id}
                   className={`w-full ${
-                    path === category.title ? "bg-blue-100" : ""
+                    location.pathname === `/todo/${category.title}`
+                      ? "bg-blue-100"
+                      : ""
                   }`}
                   onMouseEnter={() => setHoveredCategory(category.title)}
                   onMouseLeave={() => setHoveredCategory("")}
                   onClick={() => {
-                    if (path !== `/todo/${category.title}`)
-                      navigate(`/todo/${category.title}`);
+                    if (location.pathname !== `/todo/${category.title}`)
+                      navigate(`/todo/${category.title}`, {
+                        state: category.id,
+                      });
                   }}
                 >
                   <MenuItem
@@ -225,9 +209,11 @@ const SidePanel = ({ onCategoryChange, path }) => {
               );
             })}
           <div
-            className={`w-full ${path === "Completed" ? "bg-blue-100" : ""}`}
+            className={`w-full ${
+              location.pathname === "/completed" ? "bg-blue-100" : ""
+            }`}
             onClick={() => {
-              if (path !== "/todo/Completed") navigate("/todo/Completed");
+              if (location.pathname !== "/completed") navigate("/completed");
             }}
           >
             <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>

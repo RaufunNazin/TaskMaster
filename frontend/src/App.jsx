@@ -5,6 +5,7 @@ import Register from "./Register";
 import Todo from "./Todo";
 import FilteredTodo from "./FilteredTodo";
 import Sidebar from "./components/SideBar";
+import Completed from "./Completed";
 function App() {
   return (
     <div className="App font-body" id="outer-container">
@@ -22,6 +23,7 @@ function App() {
               <Route path="register" element={<Register />} />
               <Route path="todo" element={<Todo />} />
               <Route path="todo/:todoType" element={<FilteredTodo />} />
+              <Route path="completed" element={<Completed />} />
             </Route>
           </Routes>
         </BrowserRouter>

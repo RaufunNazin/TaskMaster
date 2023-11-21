@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { slide as Menu } from "react-burger-menu";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import { useState, useEffect } from "react";
 import {
@@ -25,7 +25,6 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { AiFillStar } from "react-icons/ai";
 import { BsFillPersonFill, BsClipboardCheck } from "react-icons/bs";
@@ -36,45 +35,13 @@ import { toast } from "react-toastify";
 import api from "../api";
 import { Trash } from "lucide-react";
 
-const Sidebar = ({ path }) => {
+const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userCategory, setUserCategory] = useState([]);
   const [isOpen, setOpen] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      title: "All Tasks",
-      icon: (
-        <BsClipboardCheck className="inline mr-2 text-gray-800 text-xl pb-0.5" />
-      ),
-      path: "/",
-    },
-    {
-      id: 2,
-      title: "Important",
-      icon: (
-        <AiFillStar className="inline mr-2 text-yellow-500 text-xl pb-0.5" />
-      ),
-      path: "/important",
-    },
-    {
-      id: 3,
-      title: "Personal",
-      icon: (
-        <BsFillPersonFill className="inline mr-2 text-blue-500 text-xl pb-0.5" />
-      ),
-      path: "/personal",
-    },
-    {
-      id: 4,
-      title: "Work",
-      icon: <MdWork className="inline mr-2 text-amber-950 text-xl pb-0.5" />,
-      path: "/work",
-    },
-  ]);
 
   const categoryChange = localStorage.getItem("categoryChange");
   const categoryChangeBoolean = categoryChange === "true";
@@ -104,7 +71,7 @@ const Sidebar = ({ path }) => {
             },
           }
         )
-        .then((res) => {
+        .then(() => {
           toast.success("Category created");
           const toggledValue = !categoryChangeBoolean;
           localStorage.setItem("categoryChange", toggledValue.toString());
@@ -123,7 +90,7 @@ const Sidebar = ({ path }) => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-      .then((res) => {
+      .then(() => {
         toast.success("Category deleted");
         const toggledValue = !categoryChangeBoolean;
         localStorage.setItem("categoryChange", toggledValue.toString());
@@ -179,7 +146,9 @@ const Sidebar = ({ path }) => {
                 className="inline"
                 onClick={() => {
                   if (location.pathname !== `/todo/${category.title}`)
-                    navigate(`/todo/${category.title}`);
+                    navigate(`/todo/${category.title}`, {
+                      state: category.id,
+                    });
                   closeSideBar();
                 }}
               >
@@ -230,8 +199,7 @@ const Sidebar = ({ path }) => {
         })}
         <div
           onClick={() => {
-            if (location.pathname !== "/todo/Completed")
-              navigate("/todo/Completed");
+            if (location.pathname !== "/completed") navigate("/completed");
             closeSideBar();
           }}
           className={`w-full flex items-center gap-x-2`}
