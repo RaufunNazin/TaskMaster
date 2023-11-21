@@ -3,21 +3,15 @@ import { useEffect, useState } from "react";
 import { Calendar } from "./ui/calendar";
 import { FcOk } from "react-icons/fc";
 import { format, parseISO } from "date-fns";
-import {
-  Check,
-  ChevronsUpDown,
-  MoreHorizontal,
-  Tags,
-  Trash,
-  User,
-} from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import {
   AiOutlineClockCircle,
   AiOutlineStar,
   AiTwotoneCalendar,
 } from "react-icons/ai";
-import { RiDeleteBin6Line, RiInformationLine } from "react-icons/ri";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import { BsCheck2Circle, BsCheck2 } from "react-icons/bs";
+import { RxCross1 } from "react-icons/rx";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -46,19 +40,6 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { cn } from "./lib/utils";
 import SidePanel from "./components/SidePanel";
 import { Button } from "./ui/button";
@@ -68,44 +49,32 @@ import api from "./api";
 import { CiEdit } from "react-icons/ci";
 
 const Todo = () => {
+  const today = new Date();
+  const beforeToday = { before: today };
   const navigate = useNavigate();
   const location = useLocation();
 
   const [pending, setPending] = useState([]);
+  const [task, setTask] = useState({});
+  const [categories, setCategories] = useState([]);
+
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(null);
   const [description, setDescription] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedCategoryTitle, setSelectedCategoryTitle] = useState("");
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [task, setTask] = useState({});
+
   const [updateTitle, setUpdateTitle] = useState("");
   const [updateDate, setUpdateDate] = useState(null);
   const [updateDescription, setUpdateDescription] = useState("");
   const [updateCategory, setUpdateCategory] = useState("");
   const [updateCategoryTitle, setUpdateCategoryTitle] = useState("");
+
+  const [categoryChange, setCategoryChange] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [updateCalendarOpen, setUpdateCalendarOpen] = useState(false);
   const [updateCategoryOpen, setUpdateCategoryOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [staticCategories, setStaticCategories] = useState([
-    {
-      title: "Important",
-      id: 3,
-    },
-    {
-      title: "Personal",
-      id: 1,
-    },
-    {
-      title: "Work",
-      id: 2,
-    },
-  ]);
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const today = new Date();
-  const beforeToday = { before: today };
 
   const addTask = () => {
     if (title && date) {
@@ -119,11 +88,10 @@ const Todo = () => {
       }
 
       if (selectedCategory && selectedCategoryTitle) {
-        const categoryObject = {
+        requestBody.category = {
           id: selectedCategory,
-          name: selectedCategoryTitle, 
+          name: selectedCategoryTitle,
         };
-        requestBody.category = categoryObject;
       }
 
       setTitle("");
@@ -139,20 +107,6 @@ const Todo = () => {
         })
         .then((res) => {
           if (res.status === 201) {
-            // api
-            //   .put(
-            //     `/todo/${res.data.id}/addCategory`,
-            //     {
-            //       category: selectedCategory,
-            //     },
-            //     {
-            //       headers: {
-            //         Authorization: `Bearer ${localStorage.getItem("token")}`,
-            //       },
-            //     }
-            //   )
-            //   .then((res) => console.log(res))
-            //   .catch((err) => console.log(err));
             toast.success("Task added");
             getTasks();
           }
@@ -233,23 +187,37 @@ const Todo = () => {
   };
 
   const updateTask = (id) => {
+    const requestBody = {
+      title: updateTitle ? updateTitle : task.title,
+      targetDate: updateDate ? updateDate : task.targetDate,
+    };
+
+    if (updateDescription) {
+      requestBody.description = updateDescription
+        ? updateDescription
+        : task.description;
+    }
+
+    if (updateCategory && updateCategoryTitle) {
+      requestBody.category = {
+        id: updateCategory ? updateCategory : task.category.id,
+        name: updateCategoryTitle ? updateCategoryTitle : task.category.title,
+      };
+    }
+
+    setUpdateTitle("");
+    setUpdateDate("");
+    setUpdateDescription("");
+    setUpdateCategory("");
+
     api
-      .put(
-        `/todo/${id}`,
-        {
-          title: updateTitle ? updateTitle : task.title,
-          targetDate: updateDate ? updateDate : task.targetDate,
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      )
+      .put(`/todo/${id}`, requestBody, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
       .then((res) => {
         if (res.status === 200) {
           toast.success("Task updated");
           setTask({});
-          setUpdateTitle("");
-          setUpdateDate("");
           getTasks();
         }
       })
@@ -280,6 +248,10 @@ const Todo = () => {
     }
   }, []);
 
+  useEffect(() => {
+    getCategory();
+  }, [categoryChange]);
+
   return (
     <div className="flex flex-col h-screen max-w-screen">
       <ToastContainer
@@ -296,7 +268,7 @@ const Todo = () => {
       />
       <Navbar />
       <div className="flex flex-1 relative">
-        <SidePanel />
+        <SidePanel onCategoryChange={setCategoryChange} />
         <div className="flex flex-col w-full">
           <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
             <p className="text-lg lg:text-2xl">All Tasks</p>
@@ -365,7 +337,7 @@ const Todo = () => {
                         <textarea
                           placeholder="Add description (optional)"
                           value={description}
-                          className="w-full outline-none ring-0 border-none col-span-3 mr-4"
+                          className="w-full outline-none ring-0 border-none col-span-3 lg:mr-4"
                           onChange={(e) => setDescription(e.target.value)}
                         />
                         <div className="flex justify-center">
@@ -381,15 +353,10 @@ const Todo = () => {
                                 className="w-full lg:w-[200px] justify-between font-normal"
                               >
                                 {selectedCategory
-                                  ? selectedCategory <= 3
-                                    ? staticCategories.find(
-                                        (categories) =>
-                                          categories.id === selectedCategory
-                                      )?.title
-                                    : categories.find(
-                                        (categories) =>
-                                          categories.id === selectedCategory
-                                      )?.title
+                                  ? categories.find(
+                                      (categories) =>
+                                        categories.id === selectedCategory
+                                    )?.title
                                   : "Select category (optional)"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -399,36 +366,6 @@ const Todo = () => {
                                 <CommandInput placeholder="Search categories..." />
                                 <CommandEmpty>No category found</CommandEmpty>
                                 <CommandGroup>
-                                  {staticCategories.map((category) => (
-                                    <CommandItem
-                                      key={category.id}
-                                      value={
-                                        selectedCategory
-                                          ? staticCategories.find(
-                                              (category) =>
-                                                category.id === selectedCategory
-                                            )?.title
-                                          : ""
-                                      }
-                                      onSelect={() => {
-                                        setSelectedCategory(category.id);
-                                        setSelectedCategoryTitle(
-                                          category.title
-                                        );
-                                        setCategoryOpen(false);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          selectedCategory === category.id
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {category.title}
-                                    </CommandItem>
-                                  ))}
                                   {categories.map((category) => (
                                     <CommandItem
                                       key={category.id}
@@ -561,30 +498,33 @@ const Todo = () => {
                               </AlertDialog>
                             </div>
                           </div>
-                          <Accordion
-                            type="single"
-                            collapsible
-                            className="w-full outline-none ring-0"
-                          >
-                            <AccordionItem value="item-1">
-                              <AccordionTrigger></AccordionTrigger>
-                              <AccordionContent>
-                                <div className="flex flex-row justify-between gap-x-4 gap-y-3 items-start">
-                                  <div className=" whitespace-normal break-all overflow-hidden">
-                                    {item.description ?? "No description added"}
-                                  </div>
-                                  {item.category && (
-                                    <div className="flex justify-center gap-x-1 border border-blue-300 py-0.5 px-2 rounded-md items-center">
-                                      <div className="h-2 w-2 bg-blue-300 rounded-full"></div>
-                                      <div className="text-blue-400 text-sm">
-                                        {item.category}
-                                      </div>
+                          {item.description && item.category && (
+                            <Accordion
+                              type="single"
+                              collapsible
+                              className="w-full outline-none ring-0"
+                            >
+                              <AccordionItem value="item-1">
+                                <AccordionTrigger></AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="flex flex-row justify-between gap-x-4 gap-y-3 items-start">
+                                    <div className=" whitespace-normal break-all overflow-hidden">
+                                      {item.description ??
+                                        "No description added"}
                                     </div>
-                                  )}
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
+                                    {item.category && (
+                                      <div className="flex justify-center gap-x-1 border border-blue-300 py-0.5 px-2 rounded-md items-center">
+                                        <div className="h-2 w-2 bg-blue-300 rounded-full"></div>
+                                        <div className="text-blue-400 text-sm">
+                                          {item.category.title}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            </Accordion>
+                          )}
                         </button>
                         <div
                           className={`${
@@ -645,6 +585,13 @@ const Todo = () => {
                                 >
                                   <BsCheck2 className="text-3xl text-blue-600 hover:text-blue-500" />
                                 </button>
+                                <button
+                                  type="button"
+                                  className="cursor-pointer"
+                                  onClick={() => setTask({})}
+                                >
+                                  <RxCross1 className="text-2xl text-red-700 hover:text-blue-500" />
+                                </button>
                               </div>
                             </div>
                             <Accordion
@@ -663,7 +610,7 @@ const Todo = () => {
                                           ? updateDescription
                                           : task.description
                                       }
-                                      className="w-full outline-none ring-0 border-none col-span-3 mr-4"
+                                      className="w-full outline-none ring-0 border-none col-span-3 lg:mr-4"
                                       onChange={(e) =>
                                         setUpdateDescription(e.target.value)
                                       }
@@ -680,8 +627,10 @@ const Todo = () => {
                                             aria-expanded={updateCategoryOpen}
                                             className="w-full lg:w-[200px] justify-between font-normal"
                                           >
-                                            {task.category
-                                              ? task.category
+                                            {updateCategory
+                                              ? updateCategoryTitle
+                                              : task.category
+                                              ? task.category.title
                                               : "Change category"}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                           </Button>
@@ -693,44 +642,6 @@ const Todo = () => {
                                               No category found
                                             </CommandEmpty>
                                             <CommandGroup>
-                                              {staticCategories.map(
-                                                (category) => (
-                                                  <CommandItem
-                                                    key={category.id}
-                                                    value={
-                                                      selectedCategory
-                                                        ? staticCategories.find(
-                                                            (category) =>
-                                                              category.id ===
-                                                              selectedCategory
-                                                          )?.title
-                                                        : ""
-                                                    }
-                                                    onSelect={() => {
-                                                      setUpdateCategory(
-                                                        category.id
-                                                      );
-                                                      setUpdateCategoryTitle(
-                                                        category.title
-                                                      );
-                                                      setUpdateCategoryOpen(
-                                                        false
-                                                      );
-                                                    }}
-                                                  >
-                                                    <Check
-                                                      className={cn(
-                                                        "mr-2 h-4 w-4",
-                                                        selectedCategory ===
-                                                          category.id
-                                                          ? "opacity-100"
-                                                          : "opacity-0"
-                                                      )}
-                                                    />
-                                                    {category.title}
-                                                  </CommandItem>
-                                                )
-                                              )}
                                               {categories.map((category) => (
                                                 <CommandItem
                                                   key={category.id}

@@ -34,7 +34,7 @@ import { toast } from "react-toastify";
 import api from "../api";
 import { Trash } from "lucide-react";
 
-const SidePanel = () => {
+const SidePanel = ({ onCategoryChange }) => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
@@ -92,6 +92,7 @@ const SidePanel = () => {
         )
         .then((res) => {
           toast.success("Category created");
+          onCategoryChange((prev) => !prev);
           getCategory();
         })
         .catch((err) => {
@@ -109,6 +110,7 @@ const SidePanel = () => {
       })
       .then((res) => {
         toast.success("Category deleted");
+        onCategoryChange((prev) => !prev);
         getCategory();
       })
       .catch((err) => {
@@ -148,18 +150,11 @@ const SidePanel = () => {
               Categories
             </div>
           )}
-          {categories.length > 0 &&
-            categories.map((category, i) => {
-              return (
-                <div className="w-full" onClick={() => navigate(category.path)}>
-                  <MenuItem key={i} icon={category.icon}>
-                    <div className="font-medium text-gray-700">
-                      {category.title}
-                    </div>
-                  </MenuItem>
-                </div>
-              );
-            })}
+          <div className="w-full" onClick={() => navigate("/")}>
+            <MenuItem icon={<BsClipboardCheck className="text-gray-800" />}>
+              <div className="font-medium text-gray-700">All Tasks</div>
+            </MenuItem>
+          </div>
           {userCategory.length > 0 &&
             userCategory.map((category) => {
               return (
@@ -170,7 +165,17 @@ const SidePanel = () => {
                 >
                   <MenuItem
                     key={category.id}
-                    icon={<GiPin className="text-red-700" />}
+                    icon={
+                      category.title === "Important" ? (
+                        <AiFillStar className="text-yellow-500" />
+                      ) : category.title === "Work" ? (
+                        <MdWork className="text-amber-950" />
+                      ) : category.title === "Personal" ? (
+                        <BsFillPersonFill className="text-blue-500" />
+                      ) : (
+                        <GiPin className="text-red-700" />
+                      )
+                    }
                   >
                     <div className="flex justify-between items-center">
                       <div className="font-medium text-gray-700">
