@@ -53,6 +53,7 @@ const Todo = () => {
   const beforeToday = { before: today };
   const navigate = useNavigate();
   const location = useLocation();
+  const categoryChangeSidebar = localStorage.getItem("categoryChange");
 
   const [pending, setPending] = useState([]);
   const [task, setTask] = useState({});
@@ -250,7 +251,7 @@ const Todo = () => {
 
   useEffect(() => {
     getCategory();
-  }, [categoryChange]);
+  }, [categoryChange, categoryChangeSidebar]);
 
   return (
     <div className="flex flex-col h-screen max-w-screen">
@@ -268,7 +269,7 @@ const Todo = () => {
       />
       <Navbar />
       <div className="flex flex-1 relative">
-        <SidePanel onCategoryChange={setCategoryChange} />
+        <SidePanel onCategoryChange={setCategoryChange} path={"/"} />
         <div className="flex flex-col w-full">
           <div className="bg-gray-50 pt-4 lg:pt-8 px-4 lg:px-12 flex gap-x-2 items-center">
             <p className="text-lg lg:text-2xl">All Tasks</p>
@@ -412,10 +413,9 @@ const Todo = () => {
                     const currentDate = new Date(item.targetDate);
                     currentDate.setDate(currentDate.getDate() + 1);
                     return (
-                      <div>
-                        <button
+                      <div key={item.id}>
+                        <div
                           type="button"
-                          key={item.id}
                           className={`${
                             task && task.id === item.id ? "hidden" : "block"
                           } w-full shadow-md py-3 rounded-sm bg-white px-4 lg:px-10`}
@@ -525,7 +525,7 @@ const Todo = () => {
                               </AccordionItem>
                             </Accordion>
                           )}
-                        </button>
+                        </div>
                         <div
                           className={`${
                             task && task.id === item.id ? "block" : "hidden"

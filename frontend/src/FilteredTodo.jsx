@@ -19,9 +19,11 @@ import SidePanel from "./components/SidePanel";
 import { useEffect, useState } from "react";
 import { BiChevronsRight } from "react-icons/bi";
 import api from "./api";
+import { useParams } from "react-router-dom";
 
-const Completed = () => {
+const FilteredTodo = () => {
   const [completed, setCompleted] = useState();
+  let { todoType } = useParams();
 
   const getTasks = () => {
     api
@@ -58,7 +60,8 @@ const Completed = () => {
 
   useEffect(() => {
     getTasks();
-  }, []);
+    console.log(todoType);
+  }, [todoType]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -148,4 +151,4 @@ const Completed = () => {
   );
 };
 
-export default Completed;
+export default FilteredTodo;

@@ -34,13 +34,13 @@ import { toast } from "react-toastify";
 import api from "../api";
 import { Trash } from "lucide-react";
 
-const SidePanel = ({ onCategoryChange }) => {
+const SidePanel = ({ onCategoryChange, path }) => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [userCategory, setUserCategory] = useState([]);
-  const [hover, setHover] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState("");
   const [categories, setCategories] = useState([
     {
       title: "All Tasks",
@@ -76,7 +76,6 @@ const SidePanel = ({ onCategoryChange }) => {
   };
 
   const createCategory = () => {
-    // Add the new category to the state.
     if (categoryTitle) {
       api
         .post(
@@ -150,7 +149,12 @@ const SidePanel = ({ onCategoryChange }) => {
               Categories
             </div>
           )}
-          <div className="w-full" onClick={() => navigate("/")}>
+          <div
+            className={`w-full ${path === "/" ? "bg-blue-100" : ""}`}
+            onClick={() => {
+              if (path !== "/") navigate("/");
+            }}
+          >
             <MenuItem icon={<BsClipboardCheck className="text-gray-800" />}>
               <div className="font-medium text-gray-700">All Tasks</div>
             </MenuItem>
@@ -159,12 +163,18 @@ const SidePanel = ({ onCategoryChange }) => {
             userCategory.map((category) => {
               return (
                 <div
-                  className="w-full"
-                  onMouseEnter={() => setHover(true)}
-                  onMouseLeave={() => setHover(false)}
+                  key={category.id}
+                  className={`w-full ${
+                    path === category.title ? "bg-blue-100" : ""
+                  }`}
+                  onMouseEnter={() => setHoveredCategory(category.title)}
+                  onMouseLeave={() => setHoveredCategory("")}
+                  onClick={() => {
+                    if (path !== `/todo/${category.title}`)
+                      navigate(`/todo/${category.title}`);
+                  }}
                 >
                   <MenuItem
-                    key={category.id}
                     icon={
                       category.title === "Important" ? (
                         <AiFillStar className="text-yellow-500" />
@@ -181,7 +191,7 @@ const SidePanel = ({ onCategoryChange }) => {
                       <div className="font-medium text-gray-700">
                         {category.title}
                       </div>
-                      {hover && (
+                      {hoveredCategory === category.title && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <button type="button">
@@ -214,7 +224,12 @@ const SidePanel = ({ onCategoryChange }) => {
                 </div>
               );
             })}
-          <div className="w-full" onClick={() => navigate("/completed")}>
+          <div
+            className={`w-full ${path === "Completed" ? "bg-blue-100" : ""}`}
+            onClick={() => {
+              if (path !== "/todo/Completed") navigate("/todo/Completed");
+            }}
+          >
             <MenuItem icon={<BsCheck2Circle className="text-green-600" />}>
               <div className="font-medium text-gray-700">Completed Tasks</div>
             </MenuItem>
@@ -242,18 +257,13 @@ const SidePanel = ({ onCategoryChange }) => {
                   your preferences.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="Friends and Families"
-                    className="col-span-3"
-                    onChange={(e) => setCategoryTitle(e.target.value)}
-                  />
-                </div>
+              <div>
+                <Input
+                  id="title"
+                  placeholder="Category title"
+                  className="mt-5"
+                  onChange={(e) => setCategoryTitle(e.target.value)}
+                />
               </div>
               <DialogFooter>
                 <Button
@@ -262,6 +272,7 @@ const SidePanel = ({ onCategoryChange }) => {
                     setOpenDialog(false);
                     createCategory();
                   }}
+                  className="w-full"
                 >
                   Create
                 </Button>
