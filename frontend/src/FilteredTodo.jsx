@@ -22,10 +22,11 @@ import api from "./api";
 import { useParams, useLocation } from "react-router-dom";
 
 const FilteredTodo = () => {
-  const [tasks, setTasks] = useState();
   let { todoType } = useParams();
   const location = useLocation();
-
+  
+  const [tasks, setTasks] = useState();
+  
   const getTasks = () => {
     api
       .get(`/category/${location.state}`, {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CgDetailsMore } from "react-icons/cg";
+import { IoChevronForwardOutline } from "react-icons/io5";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { AiFillStar } from "react-icons/ai";
 import { BsFillPersonFill, BsClipboardCheck } from "react-icons/bs";
@@ -114,9 +114,9 @@ const SidePanel = ({ onCategoryChange }) => {
                   collapsed ? "center" : "end"
                 } flex-1`}
               >
-                <CgDetailsMore
-                  className={`transition-all duration-300 rotate-180 ${
-                    collapsed ? "rotate-0" : ""
+                <IoChevronForwardOutline
+                  className={`transition-all duration-300 ${
+                    collapsed ? "rotate-0" : "rotate-180"
                   }`}
                 />
               </div>

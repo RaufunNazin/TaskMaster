@@ -166,7 +166,7 @@ const Sidebar = () => {
                 </div>
               </div>
 
-              <div className="inline" onClick={closeSideBar}>
+              <div className="inline ml-5" onClick={closeSideBar}>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button type="button">
