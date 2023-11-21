@@ -1,9 +1,11 @@
 package com.backend.todolist.auth.controller;
 
+import com.backend.todolist.auth.factory.AuthRequest;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
-public class UserSigninRequest {
+public class UserSigninRequest implements AuthRequest {
     private String username;
 
     private String password;
@@ -18,10 +20,12 @@ public class UserSigninRequest {
 		this.password = password;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
