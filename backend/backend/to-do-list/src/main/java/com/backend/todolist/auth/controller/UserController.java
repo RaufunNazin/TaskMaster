@@ -5,7 +5,6 @@ import com.backend.todolist.auth.jwt.JwtTokenGenerator;
 import com.backend.todolist.auth.repository.UserRepository;
 import com.backend.todolist.auth.service.SignInResponseFactory;
 import com.backend.todolist.auth.service.SignUpResponseFactory;
-import com.backend.todolist.auth.service.UserResponseService;
 import com.backend.todolist.errorhandler.CustomException;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
