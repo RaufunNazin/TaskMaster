@@ -1,44 +1,45 @@
-# Taskmaster - Your daily task management tool
+# Taskmaster - Your Daily Task Management Tool
 
-### Overview
-Taskmaster is a robust and intuitive todo application designed to help users manage their tasks efficiently. This project leverages Spring Boot on the backend to provide a reliable and secure platform for creating, updating, deleting and organizing tasks.
+## Overview
 
-### Features
-* Todo Management: Create, update, delete, sort by due date and categorize tasks effortlessly.
-* User Authentication: Secure user authentication and authorization using JWT tokens.
-* Category Management: Organize tasks by assigning them to various categories.
-* Notification System: Real-time notifications and updates on task changes.
-* Flexible and Scalable: Designed with a modular structure for easy scalability and further feature expansion.
-### Technology Stack
-* Backend: Java with Spring Boot framework
-* Database: MySQL
-* Frontend: React, typscript, css
-* RESTful API: RESTful APIs to facilitate communication between frontend and backend
+Taskmaster is an efficient and user-friendly todo application designed to streamline task management. This project utilizes Spring Boot on the backend to provide a secure platform for creating, updating, deleting, and organizing tasks.
 
-### How to Run Application
+## Features
 
-1. Install node to run react app (frontend) and maven to run spring boot app (backend).
-2. run `npm install` to install packages or dependencies
-3. In /frontend directory, run the frontend
+- **Todo Management:** Effortlessly create, update, delete, sort by due date, and categorize tasks.
+- **User Authentication:** Secure user authentication and authorization using JWT tokens.
+- **Category Management:** Organize tasks by assigning them to various categories.
+- **Notification System:** Real-time notifications and updates on task changes.
+- **Flexible and Scalable:** Designed with a modular structure for easy scalability and future feature expansion.
 
-&emsp; `cd /frontend`
+## Technology Stack
 
-&emsp; `npm run dev`
+- **Frontend:** React JS
+- **Backend:** Spring Boot
+- **Database:** MySQL
+- **RESTful API:** Facilitates communication between frontend and backend
 
-3. in /backend/to-do-list directory, run spring boot aplication using maven
+## Run the Application
 
-&emsp; `cd /backend/to-do-list`
+- Install applications
 
-&emsp; `mvn spring-boot:run`
+  - [Node.js](https://nodejs.org/en/) (frontend)
+  - [Maven](https://maven.apache.org/) (backend)
+  - [MySQL](https://www.mysql.com/) (database)
 
-4. Open your browser and browse to http://localhost:5174
+- In the `root` directory, run the following commands:
 
-### Snapshot of Application
+  ```bash
+  cd /frontend
+  npm install
+  npm run dev
+  ```
 
-Sign In                                                 |  SignUp
-:------------------------------------------------------:|:------------------------------------------------------:
-![Taskmaster sign in](https://i.imgur.com/sbZkNUV.png)  |  ![Tasmaster signup](https://i.imgur.com/XfWLOUm.png)
+- In the `root` directory, run the following commands:
 
-Home Page
-:------------------------------------------------------:
-![Taskmaster home](https://i.imgur.com/tB4Sp69.png)
+  ```bash
+  cd /backend/backend/to-do-list
+  mvn spring-boot:run
+  ```
+
+- Open your browser and browse to [http://localhost:5173](http://localhost:5173)
