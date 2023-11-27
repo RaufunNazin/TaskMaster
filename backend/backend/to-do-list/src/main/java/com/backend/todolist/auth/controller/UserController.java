@@ -46,13 +46,13 @@ public class UserController {
 
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/auth/signin", method = RequestMethod.POST)
-    public ResponseEntity<AuthResponse> signin(@Valid @RequestBody UserSigninRequest userSigninRequest) {
+    public ResponseEntity<AuthResponse> signin(@Valid @RequestBody SigninRequestFactory userSigninRequest) {
 		return new ResponseEntity<>(signInResponseFactory.createResponse(userSigninRequest), HttpStatus.OK);
     }
 
 	@ResponseStatus(code = HttpStatus.OK)
 	@RequestMapping(value = "/api/auth/signup", method = RequestMethod.POST)
-    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody UserSignupRequest userSignupRequest) {
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequestFactory userSignupRequest) {
 		return new ResponseEntity<>(signUpResponseFactory.createResponse(userSignupRequest), HttpStatus.OK);
     }
 

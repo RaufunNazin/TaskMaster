@@ -1,20 +1,20 @@
 package com.backend.todolist.service;
 
-import com.backend.todolist.auth.model.User;
 import com.backend.todolist.auth.repository.CategoryRepository;
 import com.backend.todolist.controller.CategoryAddRequest;
 import com.backend.todolist.errorhandler.BadRequestException;
 import com.backend.todolist.errorhandler.ResourceNotFoundException;
 import com.backend.todolist.model.Category;
+import com.backend.todolist.observer.NotificationSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class CategoryService {
+
+    private final NotificationSystem notificationSystem = new NotificationSystem();
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -26,6 +26,8 @@ public class CategoryService {
             throw new BadRequestException("This Category already exists for " + username);
         }
         Category _category = new Category(username, categoryAddRequest.getTitle());
+
+        notificationSystem.createCategory();
 
         return categoryRepository.save(_category);
     }

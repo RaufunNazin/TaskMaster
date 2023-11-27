@@ -1,13 +1,13 @@
 package com.backend.todolist.auth.controller;
 
-import com.backend.todolist.auth.factory.AuthRequest;
+import com.backend.todolist.auth.factory.AuthRequestFactory;
 
 import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-public class UserSignupRequest implements AuthRequest {
+public class SignupRequestFactory implements AuthRequestFactory {
 	@NotEmpty(message = "Username is required")
 	@Column(unique = true)
     private String username;
@@ -21,11 +21,11 @@ public class UserSignupRequest implements AuthRequest {
     @Size(min=8, message = "Password length should be 8 characters or more")
     private String password;
     
-    protected UserSignupRequest() {
+    protected SignupRequestFactory() {
     	
     }
 
-	public UserSignupRequest(String username, String email, String password) {
+	public SignupRequestFactory(String username, String email, String password) {
 		super();
 		this.username = username;
 		this.email = email;

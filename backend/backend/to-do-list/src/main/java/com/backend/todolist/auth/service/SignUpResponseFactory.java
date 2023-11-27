@@ -1,9 +1,8 @@
 package com.backend.todolist.auth.service;
 
-import com.backend.todolist.auth.controller.UserSigninRequest;
-import com.backend.todolist.auth.controller.UserSignupRequest;
-import com.backend.todolist.auth.controller.UserSignupResponse;
-import com.backend.todolist.auth.factory.AuthRequest;
+import com.backend.todolist.auth.controller.SignupRequestFactory;
+import com.backend.todolist.auth.controller.SignupResponse;
+import com.backend.todolist.auth.factory.AuthRequestFactory;
 import com.backend.todolist.auth.factory.AuthResponse;
 import com.backend.todolist.auth.factory.AuthResponseFactory;
 import com.backend.todolist.auth.jwt.JwtTokenGenerator;
@@ -42,9 +41,9 @@ public class SignUpResponseFactory implements AuthResponseFactory {
     @Autowired
     PasswordResetTokenRepository passwordResetTokenRepository;
     @Override
-    public AuthResponse createResponse(AuthRequest authRequest) {
-        if (authRequest instanceof UserSignupRequest) {
-            UserSignupRequest userSignupRequest = (UserSignupRequest) authRequest;
+    public AuthResponse createResponse(AuthRequestFactory authRequestFactory) {
+        if (authRequestFactory instanceof SignupRequestFactory) {
+            SignupRequestFactory userSignupRequest = (SignupRequestFactory) authRequestFactory;
             try {
                 String username = userSignupRequest.getUsername();
                 String email = userSignupRequest.getEmail();
@@ -74,7 +73,7 @@ public class SignUpResponseFactory implements AuthResponseFactory {
 
                 String token = jwtTokenGenerator.createToken(_user.getUsername(), _user.getRoleAsList());
 
-                return new UserSignupResponse(username, email, token);
+                return new SignupResponse(username, email, token);
             } catch (AuthenticationException e) {
                 throw new BadCredentialsException("Invalid username/password");
             }
