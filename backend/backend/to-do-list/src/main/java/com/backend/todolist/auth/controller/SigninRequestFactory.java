@@ -1,20 +1,17 @@
 package com.backend.todolist.auth.controller;
 
-import com.backend.todolist.auth.factory.AuthRequest;
+import com.backend.todolist.auth.factory.AuthRequestFactory;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-
-public class UserSigninRequest implements AuthRequest {
+public class SigninRequestFactory implements AuthRequestFactory {
     private String username;
 
     private String password;
     
-    protected UserSigninRequest() {
+    protected SigninRequestFactory() {
     	
     }
 
-	public UserSigninRequest(String username, String password) {
+	public SigninRequestFactory(String username, String password) {
 		super();
 		this.username = username;
 		this.password = password;

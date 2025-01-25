@@ -9,9 +9,9 @@ import com.backend.todolist.errorhandler.InvalidPageException;
 import com.backend.todolist.errorhandler.ResourceNotFoundException;
 import com.backend.todolist.model.Category;
 import com.backend.todolist.model.Todo;
-import com.backend.todolist.observer.TodoNotificationService;
-import com.backend.todolist.observer.TodoObserver;
-import com.backend.todolist.observer.TodoSubject;
+import com.backend.todolist.observer.ObserverClient;
+import com.backend.todolist.observer.TodoObserverInterface;
+import com.backend.todolist.observer.NotificationSystem;
 import com.backend.todolist.repository.TodoPagingRepository;
 import com.backend.todolist.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.List;
 
 @Service
 public class TodoService {
-	private final TodoSubject todoSubject = new TodoSubject();
+	private final NotificationSystem notificationSystem = new NotificationSystem();
 
 	@Autowired
 	private TodoRepository todoRepository;
@@ -36,14 +36,14 @@ public class TodoService {
 	private TodoPagingRepository todoPagingRepository;
 
 	public TodoService() {
-		TodoObserver todoObserver = new TodoNotificationService();
-		addObserver(todoObserver); // Add the observer
+		TodoObserverInterface observerClient = new ObserverClient();
+		addObserver(observerClient); // Add the observer
 	}
 
 
 	public Todo create(TodoCreateRequest todoCreateRequest, String username) {
 		Todo todo = new Todo(todoCreateRequest.getTitle(), todoCreateRequest.getDescription(), todoCreateRequest.getTargetDate(), username,todoCreateRequest.getCategory());
-		todoSubject.createTodo(todoCreateRequest.getTitle());
+		notificationSystem.createTodo(todoCreateRequest.getTitle());
 //		todo.setCategory(todoCreateRequest.getCategory());
 		return todoRepository.save(todo);
 	}
@@ -101,6 +101,7 @@ public class TodoService {
 		if(todo == null) {
 			throw new ResourceNotFoundException("TodoService not found");
 		}
+		notificationSystem.deleteTodo();
 		todoRepository.deleteById(id);
 	}
 
@@ -114,6 +115,7 @@ public class TodoService {
 		todo.setDescription(todoUpdateRequest.getDescription());
 		todo.setTargetDate(todoUpdateRequest.getTargetDate());
 		todo.setCategory(todoUpdateRequest.getCategory());
+		notificationSystem.updateTodo();
 		return todoRepository.save(todo);
 	}
 
@@ -124,6 +126,7 @@ public class TodoService {
 		}
 		
 		todo.setIsCompleted(!todo.getIsCompleted());
+		notificationSystem.markAsComplete(todo.getTitle());
 		return todoRepository.save(todo);
 	}
 
@@ -183,11 +186,11 @@ public class TodoService {
 		return todos;
 	}
 
-	public void addObserver(TodoObserver observer) {
-		todoSubject.addObserver(observer);
+	public void addObserver(TodoObserverInterface observer) {
+		notificationSystem.addObserver(observer);
 	}
 
-	public void removeObserver(TodoObserver observer) {
-		todoSubject.removeObserver(observer);
+	public void removeObserver(TodoObserverInterface observer) {
+		notificationSystem.removeObserver(observer);
 	}
 }
